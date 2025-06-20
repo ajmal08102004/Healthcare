@@ -8,6 +8,7 @@ import RoleBasedRedirect from './routes/RoleBasedRedirect';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
+import PersonalInformation from './pages/PersonalInformation';
 
 // Dashboard Pages
 import PatientDashboard from './pages/PatientDashboard';
@@ -34,6 +35,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/personal-information" element={<PersonalInformation />} />
             
             {/* Protected Routes */}
             <Route path="/patient-dashboard" element={

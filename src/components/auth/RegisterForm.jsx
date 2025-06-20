@@ -20,12 +20,12 @@ const RegisterForm = () => {
       alert('Passwords do not match');
       return;
     }
+    
+    // Set user data in context
     login({ email: formData.email, role: formData.role });
-    if (formData.role === 'patient') {
-      navigate('/patient-dashboard');
-    } else {
-      navigate('/physio-dashboard');
-    }
+    
+    // Navigate to personal information form
+    navigate('/personal-information');
   };
 
   const handleChange = (e) => {
