@@ -165,9 +165,9 @@ const RegisterForm = () => {
               {errors.role && <p className="mt-1 text-sm text-red-200">{errors.role}</p>}
             </div>
 
-            <button
+             <button
               type="submit"
-              className="w-full bg-purple-800 text-white rounded px-6 py-2 font-semibold hover:bg-purple-900 transition-colors duration-200"
+              className="w-full bg-black text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors duration-200"
             >
               Register
             </button>
