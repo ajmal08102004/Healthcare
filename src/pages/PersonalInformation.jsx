@@ -3,7 +3,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Eye, 
   EyeOff, 
-  Calendar, 
   MapPin, 
   ChevronDown, 
   Upload,
@@ -236,20 +235,17 @@ const PersonalInformation = () => {
                 <label className="block text-sm font-medium text-white mb-2">
                   Date of Birth
                 </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    name="dateOfBirth"
-                    value={formData.dateOfBirth}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.dateOfBirth ? 'border-red-500' : 'border-gray-200'
-                    }`}
-                    max={new Date().toISOString().split('T')[0]}
-                    required
-                  />
-                  <Calendar className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
-                </div>
+                <input
+                  type="date"
+                  name="dateOfBirth"
+                  value={formData.dateOfBirth}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                  max={new Date().toISOString().split('T')[0]}
+                  required
+                />
                 {errors.dateOfBirth && <p className="mt-1 text-sm text-red-200">{errors.dateOfBirth}</p>}
               </div>
 
@@ -458,7 +454,7 @@ const PersonalInformation = () => {
                   <label className="text-sm text-white">
                     I have read and agree to the{' '}
                     <Link to="#" className="text-blue-200 hover:text-blue-100 underline">
-                      
+                      Terms of Use
                     </Link>
                   </label>
                   {errors.agreeToTerms && <p className="mt-1 text-sm text-red-200">{errors.agreeToTerms}</p>}
