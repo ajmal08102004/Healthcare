@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext';
 
 const PersonalInformation = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     firstName: '',
@@ -50,12 +50,10 @@ const PersonalInformation = () => {
     // Simulate form submission
     console.log('Personal information submitted:', formData);
     
-    // Navigate to appropriate dashboard based on role
-    if (user?.role === 'patient') {
-      navigate('/patient-dashboard');
-    } else {
-      navigate('/physio-dashboard');
-    }
+    // Clear user session and redirect to login
+    logout();
+    alert('Registration completed successfully! Please login to continue.');
+    navigate('/login');
   };
 
   const isPhysiotherapist = user?.role === 'physiotherapist';
@@ -363,7 +361,7 @@ const PersonalInformation = () => {
                 type="submit"
                 className="w-full bg-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-purple-700 transition-colors duration-200 shadow-lg"
               >
-                Next
+                Complete Registration
               </button>
             </div>
           </form>
