@@ -458,7 +458,7 @@ const PersonalInformation = () => {
                   <label className="text-sm text-white">
                     I have read and agree to the{' '}
                     <Link to="#" className="text-blue-200 hover:text-blue-100 underline">
-                      Care pulse Terms of use
+                      
                     </Link>
                   </label>
                   {errors.agreeToTerms && <p className="mt-1 text-sm text-red-200">{errors.agreeToTerms}</p>}
