@@ -15,6 +15,7 @@ const PersonalInformation = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -26,24 +27,86 @@ const PersonalInformation = () => {
     state: '',
     zip: '',
     country: '',
-    email: '',
+    email: user?.email || '',
     password: '',
     agreeToTerms: false,
     certificate: null
   });
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    // Required field validation
+    const requiredFields = [
+      'firstName', 'lastName', 'phoneNumber', 'gender', 'dateOfBirth',
+      'address', 'city', 'state', 'zip', 'country', 'email', 'password'
+    ];
+
+    requiredFields.forEach(field => {
+      if (!formData[field]) {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+      }
+    });
+
+    // Email validation
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    // Password validation
+    if (formData.password) {
+      if (formData.password.length < 8) {
+        newErrors.password = 'Password must be at least 8 characters';
+      } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(formData.password)) {
+        newErrors.password = 'Password must contain at least one lowercase letter, one uppercase letter, and one number';
+      }
+    }
+
+    // Phone number validation
+    if (formData.phoneNumber && !/^\+?[\d\s\-\(\)]+$/.test(formData.phoneNumber)) {
+      newErrors.phoneNumber = 'Please enter a valid phone number';
+    }
+
+    // Terms agreement validation
+    if (!formData.agreeToTerms) {
+      newErrors.agreeToTerms = 'You must agree to the Terms of Use';
+    }
+
+    // Certificate validation for physiotherapists
+    if (user?.role === 'physiotherapist' && !formData.certificate) {
+      newErrors.certificate = 'Certificate or license is required for physiotherapists';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
+    const newValue = type === 'checkbox' ? checked : type === 'file' ? files[0] : value;
+    
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : type === 'file' ? files[0] : value
+      [name]: newValue
     }));
+
+    // Clear error when user starts typing/selecting
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.agreeToTerms) {
-      alert('Please agree to the Terms of Use');
+    
+    if (!validateForm()) {
+      // Scroll to first error
+      const firstErrorField = Object.keys(errors)[0];
+      const element = document.querySelector(`[name="${firstErrorField}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.focus();
+      }
       return;
     }
     
@@ -80,10 +143,12 @@ const PersonalInformation = () => {
                   name="firstName"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.firstName ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your first name"
-                  required
                 />
+                {errors.firstName && <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>}
               </div>
 
               {/* Last Name */}
@@ -96,10 +161,12 @@ const PersonalInformation = () => {
                   name="lastName"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.lastName ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your last name"
-                  required
                 />
+                {errors.lastName && <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>}
               </div>
 
               {/* Phone Number */}
@@ -113,10 +180,12 @@ const PersonalInformation = () => {
                   name="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.phoneNumber ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your phone number"
-                  required
                 />
+                {errors.phoneNumber && <p className="mt-1 text-sm text-red-600">{errors.phoneNumber}</p>}
               </div>
 
               {/* Gender */}
@@ -130,8 +199,9 @@ const PersonalInformation = () => {
                     name="gender"
                     value={formData.gender}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-colors"
-                    required
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-colors ${
+                      errors.gender ? 'border-red-500' : 'border-gray-200'
+                    }`}
                   >
                     <option value="">Select gender</option>
                     <option value="male">Male</option>
@@ -141,6 +211,7 @@ const PersonalInformation = () => {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
+                {errors.gender && <p className="mt-1 text-sm text-red-600">{errors.gender}</p>}
               </div>
 
               {/* Date of Birth */}
@@ -155,12 +226,14 @@ const PersonalInformation = () => {
                     name="dateOfBirth"
                     value={formData.dateOfBirth}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-                    placeholder="mm/dd/yyyy"
-                    required
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                      errors.dateOfBirth ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    max={new Date().toISOString().split('T')[0]}
                   />
                   <Calendar className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
+                {errors.dateOfBirth && <p className="mt-1 text-sm text-red-600">{errors.dateOfBirth}</p>}
               </div>
 
               {/* Address */}
@@ -174,12 +247,14 @@ const PersonalInformation = () => {
                     name="address"
                     value={formData.address}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                      errors.address ? 'border-red-500' : 'border-gray-200'
+                    }`}
                     placeholder="Street address"
-                    required
                   />
                   <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
                 </div>
+                {errors.address && <p className="mt-1 text-sm text-red-600">{errors.address}</p>}
               </div>
 
               {/* City */}
@@ -192,10 +267,12 @@ const PersonalInformation = () => {
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.city ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your city"
-                  required
                 />
+                {errors.city && <p className="mt-1 text-sm text-red-600">{errors.city}</p>}
               </div>
 
               {/* State */}
@@ -208,10 +285,12 @@ const PersonalInformation = () => {
                   name="state"
                   value={formData.state}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.state ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your state"
-                  required
                 />
+                {errors.state && <p className="mt-1 text-sm text-red-600">{errors.state}</p>}
               </div>
 
               {/* ZIP */}
@@ -224,10 +303,12 @@ const PersonalInformation = () => {
                   name="zip"
                   value={formData.zip}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.zip ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter ZIP code"
-                  required
                 />
+                {errors.zip && <p className="mt-1 text-sm text-red-600">{errors.zip}</p>}
               </div>
 
               {/* Country */}
@@ -240,8 +321,9 @@ const PersonalInformation = () => {
                     name="country"
                     value={formData.country}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-colors"
-                    required
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none transition-colors ${
+                      errors.country ? 'border-red-500' : 'border-gray-200'
+                    }`}
                   >
                     <option value="">Select country</option>
                     <option value="us">United States</option>
@@ -254,6 +336,7 @@ const PersonalInformation = () => {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
+                {errors.country && <p className="mt-1 text-sm text-red-600">{errors.country}</p>}
               </div>
             </div>
 
@@ -269,10 +352,12 @@ const PersonalInformation = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                  className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
+                    errors.email ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your email address"
-                  required
                 />
+                {errors.email && <p className="mt-1 text-sm text-red-600">{errors.email}</p>}
               </div>
 
               {/* Create Password */}
@@ -286,9 +371,10 @@ const PersonalInformation = () => {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 transition-colors"
+                    className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 transition-colors ${
+                      errors.password ? 'border-red-500' : 'border-gray-200'
+                    }`}
                     placeholder="Create a strong password"
-                    required
                   />
                   <button
                     type="button"
@@ -298,6 +384,7 @@ const PersonalInformation = () => {
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
                 </div>
+                {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password}</p>}
                 
                 {/* Password Policy */}
                 <div className="mt-3 text-sm text-gray-600">
@@ -327,11 +414,13 @@ const PersonalInformation = () => {
                       name="certificate"
                       onChange={handleChange}
                       accept=".pdf,.jpg,.jpeg,.png"
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                      required={isPhysiotherapist}
+                      className={`w-full px-4 py-3 bg-gray-50 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 ${
+                        errors.certificate ? 'border-red-500' : 'border-gray-200'
+                      }`}
                     />
                     <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                   </div>
+                  {errors.certificate && <p className="mt-1 text-sm text-red-600">{errors.certificate}</p>}
                   <p className="mt-2 text-sm text-gray-500">
                     Upload your professional certificate or license (PDF, JPG, PNG)
                   </p>
@@ -345,23 +434,27 @@ const PersonalInformation = () => {
                   name="agreeToTerms"
                   checked={formData.agreeToTerms}
                   onChange={handleChange}
-                  className="mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
-                  required
+                  className={`mt-1 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 ${
+                    errors.agreeToTerms ? 'border-red-500' : ''
+                  }`}
                 />
-                <label className="text-sm text-gray-700">
-                  I have read and agree to the{' '}
-                  <Link to="#" className="text-blue-600 hover:text-blue-700 underline">
-                    Care pulse Terms of use
-                  </Link>
-                </label>
+                <div>
+                  <label className="text-sm text-gray-700">
+                    I have read and agree to the{' '}
+                    <Link to="#" className="text-blue-600 hover:text-blue-700 underline">
+                      Care pulse Terms of use
+                    </Link>
+                  </label>
+                  {errors.agreeToTerms && <p className="mt-1 text-sm text-red-600">{errors.agreeToTerms}</p>}
+                </div>
               </div>
 
               {/* Submit Button */}
               <button
                 type="submit"
-                className="w-full bg-purple-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-purple-700 transition-colors duration-200 shadow-lg"
+                className="w-full bg-purple-800 text-white rounded px-6 py-2 font-semibold hover:bg-purple-900 transition-colors duration-200 shadow-lg"
               >
-                Complete Registration
+                Next
               </button>
             </div>
           </form>

@@ -34,8 +34,8 @@ function App() {
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/personal-info" element={<PersonalInformation />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/personal-information" element={<PersonalInformation />} />
             
             {/* Protected Routes */}
             <Route path="/patient-dashboard" element={

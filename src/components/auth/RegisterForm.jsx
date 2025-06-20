@@ -11,25 +11,61 @@ const RegisterForm = () => {
     role: ''
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!formData.email) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+
+    if (!formData.password) {
+      newErrors.password = 'Password is required';
+    } else if (formData.password.length < 8) {
+      newErrors.password = 'Password must be at least 8 characters';
+    }
+
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = 'Please confirm your password';
+    } else if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = 'Passwords do not match';
+    }
+
+    if (!formData.role) {
+      newErrors.role = 'Please select a role';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      alert('Passwords do not match');
+    
+    if (!validateForm()) {
       return;
     }
     
-    // Set user data in context
+    // Set user data in context for the personal info form
     login({ email: formData.email, role: formData.role });
     
     // Navigate to personal information form
-    navigate('/personal-information');
+    navigate('/personal-info');
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    
+    // Clear error when user starts typing
+    if (errors[name]) {
+      setErrors({ ...errors, [name]: '' });
+    }
   };
 
   return (
@@ -49,12 +85,15 @@ const RegisterForm = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.email ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Enter your email"
                   required
                 />
                 <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
               </div>
+              {errors.email && <p className="mt-1 text-sm text-red-200">{errors.email}</p>}
             </div>
 
             <div>
@@ -65,7 +104,9 @@ const RegisterForm = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
+                    errors.password ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   placeholder="Create password"
                   required
                 />
@@ -77,6 +118,26 @@ const RegisterForm = () => {
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
+              {errors.password && <p className="mt-1 text-sm text-red-200">{errors.password}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-white mb-2">Confirm Password</label>
+              <div className="relative">
+                <input
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
+                  }`}
+                  placeholder="Confirm your password"
+                  required
+                />
+                <Lock className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+              </div>
+              {errors.confirmPassword && <p className="mt-1 text-sm text-red-200">{errors.confirmPassword}</p>}
             </div>
 
             <div>
@@ -86,7 +147,9 @@ const RegisterForm = () => {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none ${
+                    errors.role ? 'border-red-500' : 'border-gray-200'
+                  }`}
                   required
                 >
                   <option value="">Select Role</option>
@@ -99,11 +162,12 @@ const RegisterForm = () => {
                   </svg>
                 </div>
               </div>
+              {errors.role && <p className="mt-1 text-sm text-red-200">{errors.role}</p>}
             </div>
 
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-3 px-4 rounded-xl font-semibold hover:bg-blue-700 transition-colors duration-200"
+              className="w-full bg-purple-800 text-white rounded px-6 py-2 font-semibold hover:bg-purple-900 transition-colors duration-200"
             >
               Register
             </button>
