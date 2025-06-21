@@ -9,8 +9,12 @@ import {
   User,
   Phone
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const PersonalInformation = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -29,9 +33,6 @@ const PersonalInformation = () => {
     agreeToTerms: false,
     certificate: null
   });
-
-  // Mock user data for preview
-  const user = { role: 'physiotherapist' };
 
   // Add global styles for date input
   React.useEffect(() => {
@@ -56,24 +57,37 @@ const PersonalInformation = () => {
   const validateForm = () => {
     const newErrors = {};
 
-    // Required field validation
-    const requiredFields = [
+    // Required field validation - base fields for all users
+    const baseRequiredFields = [
       'firstName', 'lastName', 'phoneNumber', 'gender', 'dateOfBirth',
-      'address', 'city', 'state', 'zip', 'country', 'email', 'password'
+      'address', 'city', 'state', 'zip', 'country'
     ];
+
+    // Add role-specific required fields
+    let requiredFields = [...baseRequiredFields];
+    
+    if (user?.role === 'patient') {
+      // Patients don't need email, password, or certificate
+    } else if (user?.role === 'physiotherapist') {
+      // Physiotherapists need certificate but not email/password
+      requiredFields.push('certificate');
+    }
 
     requiredFields.forEach(field => {
       if (!formData[field]) {
-        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
+        const fieldName = field === 'dateOfBirth' ? 'Date of Birth' : 
+                         field === 'phoneNumber' ? 'Phone Number' :
+                         field.charAt(0).toUpperCase() + field.slice(1);
+        newErrors[field] = `${fieldName} is required`;
       }
     });
 
-    // Email validation
+    // Email validation (only if email field is present)
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
 
-    // Password validation
+    // Password validation (only if password field is present)
     if (formData.password) {
       if (formData.password.length < 8) {
         newErrors.password = 'Password must be at least 8 characters';
@@ -90,11 +104,6 @@ const PersonalInformation = () => {
     // Terms agreement validation
     if (!formData.agreeToTerms) {
       newErrors.agreeToTerms = 'You must agree to the Terms of Use';
-    }
-
-    // Certificate validation for physiotherapists
-    if (user?.role === 'physiotherapist' && !formData.certificate) {
-      newErrors.certificate = 'Certificate or license is required for physiotherapists';
     }
 
     setErrors(newErrors);
@@ -130,12 +139,18 @@ const PersonalInformation = () => {
       return;
     }
     
-    // Simulate form submission
+    // Simulate form submission and redirect to appropriate dashboard
     console.log('Personal information submitted:', formData);
-    alert('Registration completed successfully! (This is a preview)');
+    
+    if (user?.role === 'patient') {
+      navigate('/patient-dashboard');
+    } else if (user?.role === 'physiotherapist') {
+      navigate('/physio-dashboard');
+    }
   };
 
   const isPhysiotherapist = user?.role === 'physiotherapist';
+  const isPatient = user?.role === 'patient';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 p-4">
@@ -143,10 +158,12 @@ const PersonalInformation = () => {
         <div className="bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 p-8 rounded-3xl shadow-2xl">
           <div className="text-center mb-8">
             <h2 className="text-3xl font-bold text-white mb-2">Personal Information</h2>
-            <p className="text-white">Complete your profile to get started</p>
+            <p className="text-white">
+              Complete your {user?.role === 'patient' ? 'patient' : 'physiotherapist'} profile to get started
+            </p>
           </div>
 
-          <div className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             {/* Two-column grid for form fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* First Name */}
@@ -381,57 +398,7 @@ const PersonalInformation = () => {
 
             {/* Full-width fields */}
             <div className="space-y-6">
-              {/* Email */}
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Email
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      errors.email ? 'border-red-500' : 'border-gray-200'
-                    }`}
-                    placeholder="Enter your email address"
-                    required
-                  />
-                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
-                </div>
-                {errors.email && <p className="mt-1 text-sm text-red-200">{errors.email}</p>}
-              </div>
-
-              {/* Create Password */}
-              <div>
-                <label className="block text-sm font-medium text-white mb-2">
-                  Create Password
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
-                      errors.password ? 'border-red-500' : 'border-gray-200'
-                    }`}
-                    placeholder="Create a strong password"
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff /> : <Eye />}
-                  </button>
-                </div>
-                {errors.password && <p className="mt-1 text-sm text-red-200">{errors.password}</p>}
-              </div>
-
-              {/* Certificate Upload for Physiotherapists */}
+              {/* Certificate Upload for Physiotherapists Only */}
               {isPhysiotherapist && (
                 <div>
                   <label className="block text-sm font-medium text-white mb-2">
@@ -480,14 +447,13 @@ const PersonalInformation = () => {
 
               {/* Submit Button */}
               <button
-                type="button"
-                onClick={handleSubmit}
+                type="submit"
                 className="w-full bg-black text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors duration-200"
               >
-                Next
+                Complete Registration
               </button>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>
