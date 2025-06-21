@@ -1,14 +1,33 @@
 import React from 'react';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
-import ExerciseProgress from '../components/dashboard/ExerciseProgress';
-import RecoveryProgressChart from '../components/charts/RecoveryProgressChart';
-import TreatmentPlanPieChart from '../components/charts/TreatmentPlanPieChart';
+import RadialProgressChart from '../components/charts/RadialProgressChart';
+import StreakTracker from '../components/dashboard/StreakTracker';
+import AdherenceRate from '../components/dashboard/AdherenceRate';
+import NextMeeting from '../components/dashboard/NextMeeting';
 import UpcomingSessions from '../components/dashboard/UpcomingSessions';
-import RecentMessages from '../components/dashboard/RecentMessages';
-import AIInsightsPlaceholder from '../components/dashboard/AIInsightsPlaceholder';
+import EnhancedRecentMessages from '../components/dashboard/EnhancedRecentMessages';
+import AIInsights from '../components/dashboard/AIInsights';
+import RecoveryTrendsChart from '../components/charts/RecoveryTrendsChart';
 
 const PatientDashboard = () => {
+  const patientInsights = [
+    {
+      type: 'positive',
+      icon: '✅',
+      title: 'Excellent Progress!',
+      message: 'Your exercise consistency has improved by 23% this week. Keep up the great work!',
+      color: 'green'
+    },
+    {
+      type: 'suggestion',
+      icon: '💡',
+      title: 'Optimization Tip',
+      message: 'Consider doing your stretching exercises in the morning for better flexibility gains.',
+      color: 'blue'
+    }
+  ];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Navbar />
@@ -19,7 +38,7 @@ const PatientDashboard = () => {
           <p className="text-gray-600">Track your recovery and manage your health journey</p>
         </div>
 
-        {/* Stats Cards */}
+        {/* Stats Cards Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           <StatCard
             title="Sessions Completed"
@@ -42,28 +61,43 @@ const PatientDashboard = () => {
             subtitle="10:00 AM with Dr. Afnan"
           />
           <StatCard
-            title="Adherence Rate"
-            value="70%"
-            icon="📈"
-            subtitle="This week"
-            trend={5}
+            title="Pain Level"
+            value="2/10"
+            icon="😊"
+            subtitle="Much improved"
+            trend={-40}
           />
         </div>
 
-        {/* Charts and Progress */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <ExerciseProgress />
-          <RecoveryProgressChart />
+        {/* Main Dashboard Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <RadialProgressChart 
+            percentage={74} 
+            title="Exercise Completion" 
+            subtitle="Great progress this week!"
+          />
+          <StreakTracker streakDays={7} currentStreak={5} />
+          <AdherenceRate rate={85} trend={5} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <TreatmentPlanPieChart />
+          <NextMeeting 
+            doctorName="Dr. Sarah Johnson"
+            date="Tomorrow"
+            time="10:00 AM"
+            canJoin={false}
+          />
           <UpcomingSessions />
         </div>
 
+        {/* Recovery Trends - Full Width */}
+        <div className="mb-8">
+          <RecoveryTrendsChart />
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <RecentMessages />
-          <AIInsightsPlaceholder />
+          <EnhancedRecentMessages isPhysio={false} />
+          <AIInsights insights={patientInsights} isPatient={true} />
         </div>
       </div>
     </div>
