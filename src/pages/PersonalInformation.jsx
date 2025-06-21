@@ -42,7 +42,11 @@ const PersonalInformation = () => {
         cursor: pointer;
         width: 20px;
         height: 20px;
-        margin-right: 8px;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
       }
     `;
     document.head.appendChild(style);
@@ -246,17 +250,19 @@ const PersonalInformation = () => {
                 <label className="block text-sm font-medium text-white mb-2">
                   Date of Birth
                 </label>
-                <input
-                  type="date"
-                  name="dateOfBirth"
-                  value={formData.dateOfBirth}
-                  onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                    errors.dateOfBirth ? 'border-red-500' : 'border-gray-200'
-                  }`}
-                  max={new Date().toISOString().split('T')[0]}
-                  required
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    name="dateOfBirth"
+                    value={formData.dateOfBirth}
+                    onChange={handleChange}
+                    className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                      errors.dateOfBirth ? 'border-red-500' : 'border-gray-200'
+                    }`}
+                    max={new Date().toISOString().split('T')[0]}
+                    required
+                  />
+                </div>
                 {errors.dateOfBirth && <p className="mt-1 text-sm text-red-200">{errors.dateOfBirth}</p>}
               </div>
 
