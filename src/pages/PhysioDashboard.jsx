@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AlertCircle, PartyPopper, BarChart3 } from 'lucide-react';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
 import PatientSelector from '../components/dashboard/PatientSelector';
@@ -52,21 +53,21 @@ const PhysioDashboard = () => {
   const physioInsights = [
     {
       type: 'alert',
-      icon: '⚠️',
+      icon: AlertCircle,
       title: 'Patient Attention Needed',
       message: `${selectedPatient.name === 'All Patients' ? 'Jane Smith' : selectedPatient.name} has missed 2 consecutive sessions. Consider reaching out.`,
       color: 'yellow'
     },
     {
       type: 'positive',
-      icon: '🎉',
+      icon: PartyPopper,
       title: 'Treatment Success',
       message: `${selectedPatient.name === 'All Patients' ? 'John Doe' : selectedPatient.name} has achieved 90% of recovery goals ahead of schedule.`,
       color: 'green'
     },
     {
       type: 'suggestion',
-      icon: '📊',
+      icon: BarChart3,
       title: 'Data Insight',
       message: 'Patients show 15% better adherence when exercises are scheduled in the morning.',
       color: 'blue'

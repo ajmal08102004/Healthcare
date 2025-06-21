@@ -1,4 +1,5 @@
 import React from 'react';
+import { CheckCircle, Lightbulb } from 'lucide-react';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
 import RadialProgressChart from '../components/charts/RadialProgressChart';
@@ -14,14 +15,14 @@ const PatientDashboard = () => {
   const patientInsights = [
     {
       type: 'positive',
-      icon: '✅',
+      icon: CheckCircle,
       title: 'Excellent Progress!',
       message: 'Your exercise consistency has improved by 23% this week. Keep up the great work!',
       color: 'green'
     },
     {
       type: 'suggestion',
-      icon: '💡',
+      icon: Lightbulb,
       title: 'Optimization Tip',
       message: 'Consider doing your stretching exercises in the morning for better flexibility gains.',
       color: 'blue'
