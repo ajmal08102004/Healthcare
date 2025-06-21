@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, AlertCircle, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const RegisterForm = () => {
@@ -12,8 +12,27 @@ const RegisterForm = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showValidation, setShowValidation] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  // Password validation function
+  const validatePassword = (password) => {
+    const minLength = password.length >= 8;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+
+    return {
+      minLength,
+      hasUppercase,
+      hasLowercase,
+      hasNumber,
+      hasSymbol,
+      isValid: minLength && hasUppercase && hasLowercase && hasNumber && hasSymbol
+    };
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -26,8 +45,11 @@ const RegisterForm = () => {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+    } else {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = 'Password must meet all requirements';
+      }
     }
 
     if (!formData.confirmPassword) {
@@ -48,6 +70,7 @@ const RegisterForm = () => {
     e.preventDefault();
     
     if (!validateForm()) {
+      setShowValidation(true);
       return;
     }
     
@@ -68,6 +91,18 @@ const RegisterForm = () => {
     }
   };
 
+  const handlePasswordFocus = () => {
+    setShowValidation(true);
+  };
+
+  const handlePasswordBlur = () => {
+    if (formData.password === '') {
+      setShowValidation(false);
+    }
+  };
+
+  const validation = validatePassword(formData.password);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500 p-4">
       <div className="w-full max-w-md">
@@ -85,7 +120,7 @@ const RegisterForm = () => {
                   name="email"
                   value={formData.email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
                     errors.email ? 'border-red-500' : 'border-gray-200'
                   }`}
                   placeholder="Enter your email"
@@ -104,6 +139,8 @@ const RegisterForm = () => {
                   name="password"
                   value={formData.password}
                   onChange={handleChange}
+                  onFocus={handlePasswordFocus}
+                  onBlur={handlePasswordBlur}
                   className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
                     errors.password ? 'border-red-500' : 'border-gray-200'
                   }`}
@@ -118,7 +155,40 @@ const RegisterForm = () => {
                   {showPassword ? <EyeOff /> : <Eye />}
                 </button>
               </div>
-              {errors.password && <p className="mt-1 text-sm text-red-200">{errors.password}</p>}
+              {errors.password && (
+                <div className="flex items-center gap-2 mt-2 text-red-200">
+                  <AlertCircle className="h-4 w-4" />
+                  <span className="text-sm">{errors.password}</span>
+                </div>
+              )}
+
+              {showValidation && formData.password && (
+                <div className="mt-3 bg-white/20 backdrop-blur-sm rounded-lg p-3">
+                  <p className="text-sm text-white font-medium mb-2">Password Requirements:</p>
+                  <div className="space-y-1">
+                    <div className={`flex items-center gap-2 text-sm ${validation.minLength ? 'text-green-200' : 'text-red-200'}`}>
+                      <Check className={`h-3 w-3 ${validation.minLength ? 'text-green-300' : 'text-red-300'}`} />
+                      <span>At least 8 characters</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-sm ${validation.hasUppercase ? 'text-green-200' : 'text-red-200'}`}>
+                      <Check className={`h-3 w-3 ${validation.hasUppercase ? 'text-green-300' : 'text-red-300'}`} />
+                      <span>One uppercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-sm ${validation.hasLowercase ? 'text-green-200' : 'text-red-200'}`}>
+                      <Check className={`h-3 w-3 ${validation.hasLowercase ? 'text-green-300' : 'text-red-300'}`} />
+                      <span>One lowercase letter</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-sm ${validation.hasNumber ? 'text-green-200' : 'text-red-200'}`}>
+                      <Check className={`h-3 w-3 ${validation.hasNumber ? 'text-green-300' : 'text-red-300'}`} />
+                      <span>One number</span>
+                    </div>
+                    <div className={`flex items-center gap-2 text-sm ${validation.hasSymbol ? 'text-green-200' : 'text-red-200'}`}>
+                      <Check className={`h-3 w-3 ${validation.hasSymbol ? 'text-green-300' : 'text-red-300'}`} />
+                      <span>One symbol (!@#$%^&*)</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div>
@@ -129,7 +199,7 @@ const RegisterForm = () => {
                   name="confirmPassword"
                   value={formData.confirmPassword}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 ${
                     errors.confirmPassword ? 'border-red-500' : 'border-gray-200'
                   }`}
                   placeholder="Confirm your password"
@@ -147,7 +217,7 @@ const RegisterForm = () => {
                   name="role"
                   value={formData.role}
                   onChange={handleChange}
-                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none ${
+                  className={`w-full px-4 py-3 bg-white border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 appearance-none ${
                     errors.role ? 'border-red-500' : 'border-gray-200'
                   }`}
                   required
@@ -156,9 +226,9 @@ const RegisterForm = () => {
                   <option value="patient">Patient</option>
                   <option value="physiotherapist">Physiotherapist</option>
                 </select>
-                <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                <div className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="h-5 w-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
                 </div>
               </div>
