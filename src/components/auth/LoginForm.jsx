@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { Mail, Eye, EyeOff } from 'lucide-react';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -10,21 +8,20 @@ const LoginForm = () => {
     role: ''
   });
   const [showPassword, setShowPassword] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    login({ ...formData });
-    if (formData.role === 'patient') {
-      navigate('/patient-dashboard');
-    } else {
-      navigate('/physio-dashboard');
-    }
+    // Simulate login process
+    alert(`Login attempt with:\nEmail: ${formData.email}\nRole: ${formData.role}`);
+    console.log('Login data:', formData);
   };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSocialLogin = (provider) => {
+    alert(`${provider} login clicked (demo only)`);
   };
 
   return (
@@ -35,7 +32,7 @@ const LoginForm = () => {
             <h2 className="text-3xl font-bold text-white mb-2">Login</h2>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             <div>
               <label className="block text-sm font-medium text-white mb-2">Email</label>
               <div className="relative">
@@ -46,7 +43,6 @@ const LoginForm = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   placeholder="Enter your email"
-                  required
                 />
                 <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
               </div>
@@ -62,7 +58,6 @@ const LoginForm = () => {
                   onChange={handleChange}
                   className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
                   placeholder="••••••••••"
-                  required
                 />
                 <button
                   type="button"
@@ -76,27 +71,38 @@ const LoginForm = () => {
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">Login As</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="patient">Patient</option>
-                <option value="physiotherapist">Physiotherapist</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 appearance-none"
+                >
+                  <option value="">Select Role</option>
+                  <option value="patient">Patient</option>
+                  <option value="physiotherapist">Physiotherapist</option>
+                </select>
+                <div className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="h-5 w-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <div className="text-right">
-              <Link to="/forgot-password" className="text-sm text-white hover:text-gray-200 transition-colors">
+              <button
+                type="button"
+                onClick={() => alert('Forgot password clicked (demo only)')}
+                className="text-sm text-white hover:text-gray-200 transition-colors cursor-pointer bg-transparent border-none"
+              >
                 Forgot Password?
-              </Link>
+              </button>
             </div>
 
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               className="w-full bg-black text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors duration-200"
             >
               Login
@@ -105,6 +111,7 @@ const LoginForm = () => {
             <div className="space-y-3">
               <button
                 type="button"
+                onClick={() => handleSocialLogin('Google')}
                 className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3"
               >
                 <span className="text-xl">🔍</span>
@@ -113,6 +120,7 @@ const LoginForm = () => {
 
               <button
                 type="button"
+                onClick={() => handleSocialLogin('Facebook')}
                 className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3"
               >
                 <span className="text-xl">📘</span>
@@ -122,11 +130,15 @@ const LoginForm = () => {
 
             <div className="text-center text-white">
               <span>Don't have an account? </span>
-              <Link to="/register" className="font-semibold hover:text-gray-200 transition-colors">
+              <button
+                type="button"
+                onClick={() => alert('Sign up clicked (demo only)')}
+                className="font-semibold hover:text-gray-200 transition-colors cursor-pointer bg-transparent border-none"
+              >
                 Sign up
-              </Link>
+              </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
