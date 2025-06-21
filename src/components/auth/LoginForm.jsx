@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import { Eye, EyeOff, Mail } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 const LoginForm = () => {
@@ -76,17 +76,24 @@ const LoginForm = () => {
 
             <div>
               <label className="block text-sm font-medium text-white mb-2">Login As</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              >
-                <option value="">Select Role</option>
-                <option value="patient">Patient</option>
-                <option value="physiotherapist">Physiotherapist</option>
-              </select>
+              <div className="relative">
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12 appearance-none"
+                  required
+                >
+                  <option value="">Select Role</option>
+                  <option value="patient">Patient</option>
+                  <option value="physiotherapist">Physiotherapist</option>
+                </select>
+                <div className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none">
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="h-5 w-5">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
             </div>
 
             <div className="text-right">
