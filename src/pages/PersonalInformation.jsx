@@ -40,6 +40,9 @@ const PersonalInformation = () => {
       input[type="date"]::-webkit-calendar-picker-indicator {
         filter: invert(0.5);
         cursor: pointer;
+        width: 20px;
+        height: 20px;
+        margin-right: 8px;
       }
     `;
     document.head.appendChild(style);
@@ -159,7 +162,7 @@ const PersonalInformation = () => {
                     placeholder="Enter your first name"
                     required
                   />
-                  <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
                 {errors.firstName && <p className="mt-1 text-sm text-red-200">{errors.firstName}</p>}
               </div>
@@ -181,7 +184,7 @@ const PersonalInformation = () => {
                     placeholder="Enter your last name"
                     required
                   />
-                  <User className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                  <User className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
                 {errors.lastName && <p className="mt-1 text-sm text-red-200">{errors.lastName}</p>}
               </div>
@@ -203,7 +206,7 @@ const PersonalInformation = () => {
                     placeholder="Enter your phone number"
                     required
                   />
-                  <Phone className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                  <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
                 {errors.phoneNumber && <p className="mt-1 text-sm text-red-200">{errors.phoneNumber}</p>}
               </div>
@@ -229,8 +232,8 @@ const PersonalInformation = () => {
                     <option value="other">Other</option>
                     <option value="prefer-not-to-say">Prefer not to say</option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -274,7 +277,7 @@ const PersonalInformation = () => {
                     placeholder="Street address"
                     required
                   />
-                  <MapPin className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                  <MapPin className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
                 {errors.address && <p className="mt-1 text-sm text-red-200">{errors.address}</p>}
               </div>
@@ -360,8 +363,8 @@ const PersonalInformation = () => {
                     <option value="fr">France</option>
                     <option value="other">Other</option>
                   </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none">
+                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -389,7 +392,7 @@ const PersonalInformation = () => {
                     placeholder="Enter your email address"
                     required
                   />
-                  <Mail className="absolute right-3 top-3 h-5 w-5 text-gray-400" />
+                  <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                 </div>
                 {errors.email && <p className="mt-1 text-sm text-red-200">{errors.email}</p>}
               </div>
@@ -414,7 +417,7 @@ const PersonalInformation = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 h-5 w-5 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 hover:text-gray-600"
                   >
                     {showPassword ? <EyeOff /> : <Eye />}
                   </button>
@@ -438,7 +441,7 @@ const PersonalInformation = () => {
                         errors.certificate ? 'border-red-500' : 'border-gray-200'
                       }`}
                     />
-                    <Upload className="absolute right-3 top-3 h-5 w-5 text-gray-400 pointer-events-none" />
+                    <Upload className="absolute right-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400 pointer-events-none" />
                   </div>
                   {errors.certificate && <p className="mt-1 text-sm text-red-200">{errors.certificate}</p>}
                   <p className="mt-2 text-sm text-white opacity-80">
