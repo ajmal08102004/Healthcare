@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
 import { 
   Eye, 
   EyeOff, 
@@ -10,11 +9,8 @@ import {
   User,
   Phone
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
 
 const PersonalInformation = () => {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
@@ -28,11 +24,27 @@ const PersonalInformation = () => {
     state: '',
     zip: '',
     country: '',
-    email: user?.email || '',
+    email: '',
     password: '',
     agreeToTerms: false,
     certificate: null
   });
+
+  // Mock user data for preview
+  const user = { role: 'physiotherapist' };
+
+  // Add global styles for date input
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      input[type="date"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+        cursor: pointer;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -113,11 +125,7 @@ const PersonalInformation = () => {
     
     // Simulate form submission
     console.log('Personal information submitted:', formData);
-    
-    // Clear user session and redirect to login
-    logout();
-    alert('Registration completed successfully! Please login to continue.');
-    navigate('/login');
+    alert('Registration completed successfully! (This is a preview)');
   };
 
   const isPhysiotherapist = user?.role === 'physiotherapist';
@@ -131,7 +139,7 @@ const PersonalInformation = () => {
             <p className="text-white">Complete your profile to get started</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-6">
             {/* Two-column grid for form fields */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* First Name */}
@@ -453,9 +461,9 @@ const PersonalInformation = () => {
                 <div>
                   <label className="text-sm text-white">
                     I have read and agree to the{' '}
-                    <Link to="#" className="text-blue-200 hover:text-blue-100 underline">
+                    <a href="#" className="text-blue-200 hover:text-blue-100 underline">
                       Terms of Use
-                    </Link>
+                    </a>
                   </label>
                   {errors.agreeToTerms && <p className="mt-1 text-sm text-red-200">{errors.agreeToTerms}</p>}
                 </div>
@@ -463,13 +471,14 @@ const PersonalInformation = () => {
 
               {/* Submit Button */}
               <button
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 className="w-full bg-black text-white py-3 px-4 rounded-xl font-semibold hover:bg-gray-800 transition-colors duration-200"
               >
                 Next
               </button>
             </div>
-          </form>
+          </div>
         </div>
       </div>
     </div>
