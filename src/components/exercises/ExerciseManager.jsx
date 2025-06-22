@@ -13,7 +13,12 @@ import {
   AlertCircle,
   Calendar,
   MoreHorizontal,
-  Send
+  Send,
+  TrendingUp,
+  Award,
+  Zap,
+  Star,
+  Trophy
 } from 'lucide-react';
 
 const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
@@ -23,6 +28,10 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [recentlyAssigned, setRecentlyAssigned] = useState(new Set());
+  
   const [exercises, setExercises] = useState([
     {
       id: 1,
@@ -36,7 +45,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       instructions: ['Sit on edge of bed', 'Slowly bend knee', 'Hold for 30 seconds'],
       assignedTo: ['John Doe', 'Mike Johnson'],
       createdBy: 'You',
-      lastModified: '2 days ago'
+      lastModified: '2 days ago',
+      completionRate: 85
     },
     {
       id: 2,
@@ -50,7 +60,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       instructions: ['Stand with arms at sides', 'Squeeze shoulder blades together', 'Hold for 5 seconds'],
       assignedTo: ['Jane Smith'],
       createdBy: 'You',
-      lastModified: '1 week ago'
+      lastModified: '1 week ago',
+      completionRate: 92
     },
     {
       id: 3,
@@ -64,7 +75,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       instructions: ['Sit comfortably', 'Lift one foot', 'Make slow circles with ankle'],
       assignedTo: ['John Doe', 'Sarah Wilson'],
       createdBy: 'Dr. Smith',
-      lastModified: '3 days ago'
+      lastModified: '3 days ago',
+      completionRate: 78
     }
   ]);
 
@@ -78,7 +90,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       dueDate: '2024-01-17',
       status: 'in-progress',
       completion: 70,
-      lastCompleted: '2024-01-15'
+      lastCompleted: '2024-01-15',
+      streak: 5
     },
     {
       id: 2,
@@ -89,7 +102,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       dueDate: '2024-01-15',
       status: 'completed',
       completion: 100,
-      lastCompleted: '2024-01-15'
+      lastCompleted: '2024-01-15',
+      streak: 7
     },
     {
       id: 3,
@@ -100,7 +114,8 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       dueDate: '2024-01-19',
       status: 'overdue',
       completion: 30,
-      lastCompleted: '2024-01-13'
+      lastCompleted: '2024-01-13',
+      streak: 0
     }
   ]);
 
@@ -132,17 +147,28 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
     }
   };
 
+  const getCompletionRateColor = (rate) => {
+    if (rate >= 90) return 'text-green-600';
+    if (rate >= 70) return 'text-blue-600';
+    if (rate >= 50) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
   const handleCreateExercise = (formData) => {
     const newExercise = {
       id: exercises.length + 1,
       ...formData,
       assignedTo: [],
       createdBy: 'You',
-      lastModified: 'Just now'
+      lastModified: 'Just now',
+      completionRate: 0
     };
     setExercises([...exercises, newExercise]);
     setShowCreateModal(false);
-    alert('Exercise created successfully!');
+    
+    setSuccessMessage('Exercise created successfully! 🎉');
+    setShowSuccessAnimation(true);
+    setTimeout(() => setShowSuccessAnimation(false), 3000);
   };
 
   const handleAssignExercise = (assignmentData) => {
@@ -154,10 +180,12 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       assignedDate: new Date().toISOString().split('T')[0],
       status: 'pending',
       completion: 0,
-      lastCompleted: null
+      lastCompleted: null,
+      streak: 0
     };
     
     setAssignments([...assignments, newAssignment]);
+    setRecentlyAssigned(prev => new Set([...prev, selectedExercise.id]));
     
     // Update exercise's assignedTo list
     const updatedExercises = exercises.map(ex => 
@@ -169,16 +197,46 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
     
     setShowAssignModal(false);
     setSelectedExercise(null);
-    alert(`Exercise assigned to ${assignmentData.patientName} successfully!`);
+    
+    setSuccessMessage(`Exercise assigned to ${assignmentData.patientName} successfully! 🚀`);
+    setShowSuccessAnimation(true);
+    setTimeout(() => {
+      setShowSuccessAnimation(false);
+      setRecentlyAssigned(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(selectedExercise?.id);
+        return newSet;
+      });
+    }, 3000);
   };
 
   const handleDeleteExercise = (exerciseId) => {
     if (confirm('Are you sure you want to delete this exercise?')) {
       setExercises(exercises.filter(ex => ex.id !== exerciseId));
       setAssignments(assignments.filter(assign => assign.exerciseId !== exerciseId));
-      alert('Exercise deleted successfully!');
+      
+      setSuccessMessage('Exercise deleted successfully');
+      setShowSuccessAnimation(true);
+      setTimeout(() => setShowSuccessAnimation(false), 2000);
     }
   };
+
+  // Success Animation Component
+  const SuccessAnimation = () => (
+    showSuccessAnimation && (
+      <div className="fixed top-4 right-4 z-50 animate-slideInRight">
+        <div className="bg-white border border-green-200 rounded-lg shadow-lg p-4 flex items-center gap-3 max-w-sm">
+          <div className="relative">
+            <CheckCircle className="h-6 w-6 text-green-500" />
+            <div className="absolute inset-0 bg-green-200 rounded-full animate-ping opacity-30"></div>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-gray-900">{successMessage}</p>
+          </div>
+        </div>
+      </div>
+    )
+  );
 
   const CreateExerciseModal = () => {
     const [formData, setFormData] = useState({
@@ -204,13 +262,13 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+        <div className="bg-white rounded-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto transform animate-slideUp">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">Create New Exercise</h3>
             <button
               onClick={() => setShowCreateModal(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
             >
               ×
             </button>
@@ -224,7 +282,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                   type="text"
                   value={formData.name}
                   onChange={(e) => setFormData({...formData, name: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="Enter exercise name"
                   required
                 />
@@ -234,7 +292,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 <select 
                   value={formData.category}
                   onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 >
                   {categories.slice(1).map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
@@ -249,7 +307,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 <select 
                   value={formData.difficulty}
                   onChange={(e) => setFormData({...formData, difficulty: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 >
                   {difficulties.map(diff => (
                     <option key={diff} value={diff}>{diff}</option>
@@ -262,7 +320,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                   type="text"
                   value={formData.duration}
                   onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="2 minutes"
                   required
                 />
@@ -273,7 +331,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                   type="number"
                   value={formData.sets}
                   onChange={(e) => setFormData({...formData, sets: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="3"
                   required
                 />
@@ -284,7 +342,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                   type="number"
                   value={formData.reps}
                   onChange={(e) => setFormData({...formData, reps: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                   placeholder="10"
                   required
                 />
@@ -297,7 +355,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 rows={3}
                 value={formData.description}
                 onChange={(e) => setFormData({...formData, description: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 placeholder="Brief description of the exercise"
                 required
               />
@@ -309,7 +367,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 rows={4}
                 value={formData.instructions}
                 onChange={(e) => setFormData({...formData, instructions: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 placeholder="Step-by-step instructions (one per line)"
                 required
               />
@@ -325,7 +383,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:scale-105"
               >
                 Create Exercise
               </button>
@@ -349,20 +407,20 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div className="bg-white rounded-xl p-6 w-full max-w-md">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+        <div className="bg-white rounded-xl p-6 w-full max-w-md transform animate-slideUp">
           <div className="flex items-center justify-between mb-6">
             <h3 className="text-xl font-semibold text-gray-900">Assign Exercise</h3>
             <button
               onClick={() => setShowAssignModal(false)}
-              className="text-gray-400 hover:text-gray-600"
+              className="text-gray-400 hover:text-gray-600 transition-colors p-2 hover:bg-gray-100 rounded-full"
             >
               ×
             </button>
           </div>
           
           {selectedExercise && (
-            <div className="bg-blue-50 p-3 rounded-lg mb-4">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-4 rounded-lg mb-4 border border-blue-200">
               <h4 className="font-medium text-blue-900">{selectedExercise.name}</h4>
               <p className="text-sm text-blue-700">{selectedExercise.description}</p>
             </div>
@@ -374,7 +432,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
               <select 
                 value={assignmentData.patientName}
                 onChange={(e) => setAssignmentData({...assignmentData, patientName: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 required
               >
                 <option value="">Choose a patient</option>
@@ -391,7 +449,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 type="date"
                 value={assignmentData.dueDate}
                 onChange={(e) => setAssignmentData({...assignmentData, dueDate: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 min={new Date().toISOString().split('T')[0]}
                 required
               />
@@ -403,7 +461,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                 rows={3}
                 value={assignmentData.notes}
                 onChange={(e) => setAssignmentData({...assignmentData, notes: e.target.value})}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                 placeholder="Any specific instructions or modifications"
               />
             </div>
@@ -418,7 +476,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 flex items-center justify-center gap-2 hover:scale-105"
               >
                 <Send className="h-4 w-4" />
                 Assign Exercise
@@ -440,7 +498,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
           </div>
           <button
             onClick={() => setShowCreateModal(true)}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:scale-105 hover:shadow-lg"
           >
             <Plus className="h-4 w-4" />
             Create Exercise
@@ -453,20 +511,20 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
         <div className="flex">
           <button
             onClick={() => setActiveTab('library')}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-6 py-3 text-sm font-medium border-b-2 transition-all duration-200 ${
               activeTab === 'library'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
           >
             Exercise Library ({exercises.length})
           </button>
           <button
             onClick={() => setActiveTab('assignments')}
-            className={`px-6 py-3 text-sm font-medium border-b-2 transition-colors ${
+            className={`px-6 py-3 text-sm font-medium border-b-2 transition-all duration-200 ${
               activeTab === 'assignments'
-                ? 'border-blue-500 text-blue-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
+                ? 'border-blue-500 text-blue-600 bg-blue-50'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
             }`}
           >
             Patient Assignments ({assignments.length})
@@ -484,7 +542,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
               placeholder={activeTab === 'library' ? "Search exercises..." : "Search assignments..."}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
             />
           </div>
           
@@ -494,7 +552,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
               <select
                 value={filterCategory}
                 onChange={(e) => setFilterCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
               >
                 {categories.map(cat => (
                   <option key={cat} value={cat}>
@@ -509,11 +567,24 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
         {/* Exercise Library Tab */}
         {activeTab === 'library' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {filteredExercises.map((exercise) => (
-              <div key={exercise.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+            {filteredExercises.map((exercise, index) => (
+              <div 
+                key={exercise.id} 
+                className={`border border-gray-200 rounded-lg p-4 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] animate-slideInUp ${
+                  recentlyAssigned.has(exercise.id) ? 'ring-2 ring-green-200 bg-green-50' : ''
+                }`}
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
-                    <h3 className="font-semibold text-gray-900 mb-1">{exercise.name}</h3>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-semibold text-gray-900">{exercise.name}</h3>
+                      {recentlyAssigned.has(exercise.id) && (
+                        <div className="animate-bounce">
+                          <Zap className="h-4 w-4 text-green-500" />
+                        </div>
+                      )}
+                    </div>
                     <p className="text-sm text-gray-600 mb-2">{exercise.description}</p>
                     <div className="flex items-center gap-2 mb-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(exercise.difficulty)}`}>
@@ -522,6 +593,12 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs">
                         {exercise.category}
                       </span>
+                      <div className="flex items-center gap-1">
+                        <TrendingUp className={`h-3 w-3 ${getCompletionRateColor(exercise.completionRate)}`} />
+                        <span className={`text-xs font-medium ${getCompletionRateColor(exercise.completionRate)}`}>
+                          {exercise.completionRate}% completion
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
@@ -530,17 +607,17 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                         setSelectedExercise(exercise);
                         setShowAssignModal(true);
                       }}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200 hover:scale-110"
                       title="Assign to patient"
                     >
                       <Send className="h-4 w-4" />
                     </button>
-                    <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-colors">
+                    <button className="p-2 text-gray-600 hover:bg-gray-50 rounded-lg transition-all duration-200 hover:scale-110">
                       <Edit3 className="h-4 w-4" />
                     </button>
                     <button 
                       onClick={() => handleDeleteExercise(exercise.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 hover:scale-110"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -577,8 +654,12 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
         {/* Patient Assignments Tab */}
         {activeTab === 'assignments' && (
           <div className="space-y-4">
-            {assignments.map((assignment) => (
-              <div key={assignment.id} className="border border-gray-200 rounded-lg p-4">
+            {assignments.map((assignment, index) => (
+              <div 
+                key={assignment.id} 
+                className="border border-gray-200 rounded-lg p-4 transition-all duration-300 hover:shadow-md animate-slideInUp"
+                style={{ animationDelay: `${index * 100}ms` }}
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
@@ -589,6 +670,12 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                         <h3 className="font-semibold text-gray-900">{assignment.patientName}</h3>
                         <p className="text-sm text-gray-600">{assignment.exerciseName}</p>
                       </div>
+                      {assignment.streak > 0 && (
+                        <div className="flex items-center gap-1 bg-orange-100 px-2 py-1 rounded-full">
+                          <Star className="h-3 w-3 text-orange-500" />
+                          <span className="text-xs font-medium text-orange-700">{assignment.streak} day streak</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
@@ -596,7 +683,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(assignment.status)}`}>
                       {assignment.status.replace('-', ' ')}
                     </span>
-                    <button className="p-1 text-gray-400 hover:text-gray-600">
+                    <button className="p-1 text-gray-400 hover:text-gray-600 transition-colors">
                       <MoreHorizontal className="h-4 w-4" />
                     </button>
                   </div>
@@ -617,14 +704,17 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
                   </div>
                 </div>
                 
-                <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                <div className="w-full bg-gray-200 rounded-full h-3 mb-2 overflow-hidden">
                   <div 
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      assignment.status === 'completed' ? 'bg-green-500' :
-                      assignment.status === 'overdue' ? 'bg-red-500' : 'bg-blue-500'
+                    className={`h-3 rounded-full transition-all duration-1000 ease-out relative ${
+                      assignment.status === 'completed' ? 'bg-gradient-to-r from-green-400 to-green-600' :
+                      assignment.status === 'overdue' ? 'bg-gradient-to-r from-red-400 to-red-600' : 
+                      'bg-gradient-to-r from-blue-400 to-blue-600'
                     }`}
                     style={{ width: `${assignment.completion}%` }}
-                  ></div>
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-30 animate-pulse"></div>
+                  </div>
                 </div>
               </div>
             ))}
@@ -639,7 +729,7 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
             <p className="text-gray-600 mb-4">Create your first exercise to get started</p>
             <button
               onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:scale-105"
             >
               Create Exercise
             </button>
@@ -658,6 +748,66 @@ const ExerciseManager = ({ selectedPatient = "All Patients" }) => {
       {/* Modals */}
       {showCreateModal && <CreateExerciseModal />}
       {showAssignModal && <AssignExerciseModal />}
+      
+      {/* Success Animation */}
+      <SuccessAnimation />
+
+      {/* Custom CSS for animations */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        
+        @keyframes slideInRight {
+          from {
+            opacity: 0;
+            transform: translateX(100px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(0);
+          }
+        }
+        
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        
+        .animate-slideUp {
+          animation: slideUp 0.4s ease-out;
+        }
+        
+        .animate-slideInUp {
+          animation: slideInUp 0.6s ease-out;
+        }
+        
+        .animate-slideInRight {
+          animation: slideInRight 0.5s ease-out;
+        }
+      `}</style>
     </div>
   );
 };
