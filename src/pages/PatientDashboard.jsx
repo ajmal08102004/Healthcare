@@ -10,6 +10,7 @@ import UpcomingSessions from '../components/dashboard/UpcomingSessions';
 import EnhancedRecentMessages from '../components/dashboard/EnhancedRecentMessages';
 import AIInsights from '../components/dashboard/AIInsights';
 import RecoveryTrendsChart from '../components/charts/RecoveryTrendsChart';
+import PatientExerciseView from '../components/exercises/PatientExerciseView';
 
 const PatientDashboard = () => {
   const patientInsights = [
@@ -79,6 +80,11 @@ const PatientDashboard = () => {
           />
           <StreakTracker streakDays={7} currentStreak={5} />
           <AdherenceRate rate={85} trend={5} />
+        </div>
+
+        {/* Exercise Manager Section - Full Width */}
+        <div className="mb-8">
+          <PatientExerciseView />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
