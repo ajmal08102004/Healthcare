@@ -5,7 +5,9 @@ const StatCard = ({ title, value, icon, subtitle, trend }) => {
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-gray-600">{title}</span>
-        <div className="text-2xl">{icon}</div>
+        <div className="w-8 h-8 bg-gray-50 rounded-lg flex items-center justify-center">
+          {icon}
+        </div>
       </div>
       
       <div className="flex items-end justify-between">

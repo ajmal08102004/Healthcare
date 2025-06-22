@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle, Lightbulb } from 'lucide-react';
+import { CheckCircle, Lightbulb, Calendar, Flame, Clock, Smile } from 'lucide-react';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
 import RadialProgressChart from '../components/charts/RadialProgressChart';
@@ -45,27 +45,27 @@ const PatientDashboard = () => {
           <StatCard
             title="Sessions Completed"
             value="40"
-            icon="📅"
+            icon={<Calendar className="h-6 w-6 text-blue-600" />}
             subtitle="This month"
             trend={12}
           />
           <StatCard
             title="Daily Streak"
             value="74"
-            icon="🔥"
+            icon={<Flame className="h-6 w-6 text-orange-500" />}
             subtitle="Days in a row"
             trend={8}
           />
           <StatCard
             title="Next Session"
             value="Tomorrow"
-            icon="⏰"
+            icon={<Clock className="h-6 w-6 text-green-600" />}
             subtitle="10:00 AM with Dr. Afnan"
           />
           <StatCard
             title="Pain Level"
             value="2/10"
-            icon="😊"
+            icon={<Smile className="h-6 w-6 text-green-600" />}
             subtitle="Much improved"
             trend={-40}
           />

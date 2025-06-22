@@ -1,4 +1,5 @@
 import React from 'react';
+import { Target } from 'lucide-react';
 
 const RadialProgressChart = ({ percentage, title, subtitle, color = "#10B981" }) => {
   const radius = 45;
@@ -12,7 +13,9 @@ const RadialProgressChart = ({ percentage, title, subtitle, color = "#10B981" })
     <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
-        <div className="text-2xl">🎯</div>
+        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+          <Target className="h-4 w-4 text-purple-600" />
+        </div>
       </div>
       
       <div className="flex items-center justify-center">

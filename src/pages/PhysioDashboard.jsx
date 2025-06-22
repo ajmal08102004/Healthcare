@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, PartyPopper, BarChart3 } from 'lucide-react';
+import { AlertCircle, PartyPopper, BarChart3, Users, Calendar, Clock, Target } from 'lucide-react';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
 import PatientSelector from '../components/dashboard/PatientSelector';
@@ -97,25 +97,25 @@ const PhysioDashboard = () => {
           <StatCard
             title="Active Patients"
             value={patientData.activePatients.toString()}
-            icon="👥"
+            icon={<Users className="h-6 w-6 text-blue-600" />}
             subtitle="Currently treating"
           />
           <StatCard
             title="Sessions Today"
             value={patientData.sessionsToday.toString()}
-            icon="📅"
+            icon={<Calendar className="h-6 w-6 text-green-600" />}
             subtitle="Completed sessions"
           />
           <StatCard
             title="Next Appointment"
             value={patientData.nextAppointment}
-            icon="⏰"
+            icon={<Clock className="h-6 w-6 text-orange-600" />}
             subtitle=""
           />
           <StatCard
             title="Treatment Goals"
             value={patientData.treatmentGoals.toString()}
-            icon="🎯"
+            icon={<Target className="h-6 w-6 text-purple-600" />}
             subtitle="Goals achieved"
           />
         </div>
