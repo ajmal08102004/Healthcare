@@ -12,6 +12,7 @@ import EnhancedRecentMessages from '../components/dashboard/EnhancedRecentMessag
 import AIInsights from '../components/dashboard/AIInsights';
 import RecoveryTrendsChart from '../components/charts/RecoveryTrendsChart';
 import TreatmentPlanPieChart from '../components/charts/TreatmentPlanPieChart';
+import ExerciseManager from '../components/exercises/ExerciseManager';
 
 const PhysioDashboard = () => {
   const [selectedPatient, setSelectedPatient] = useState({ name: 'All Patients', id: 'all' });
@@ -134,6 +135,11 @@ const PhysioDashboard = () => {
             rate={patientData.adherenceRate} 
             trend={5} 
           />
+        </div>
+
+        {/* Exercise Manager Section */}
+        <div className="mb-8">
+          <ExerciseManager selectedPatient={selectedPatient.name} />
         </div>
 
         {/* Session Management */}
