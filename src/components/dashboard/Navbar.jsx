@@ -7,7 +7,6 @@ import {
   Bell, 
   User, 
   LogOut,
-  Activity,
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
@@ -59,10 +58,16 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-400 to-blue-500 rounded-lg flex items-center justify-center">
-              <Activity className="h-6 w-6 text-white" />
+            <div className="w-12 h-12 rounded-lg overflow-hidden shadow-sm">
+              <img 
+                src="/Raphat.jpg" 
+                alt="Raphat Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
-            <span className="text-xl font-bold text-gray-900">HealthCare</span>
+            <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+              Raphat
+            </span>
           </div>
           
           <div className="hidden md:flex items-center gap-1">
@@ -77,7 +82,7 @@ const Navbar = () => {
                   onClick={item.onClick}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? 'bg-blue-50 text-blue-600'
+                      ? 'bg-emerald-50 text-emerald-600'
                       : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
                 >
