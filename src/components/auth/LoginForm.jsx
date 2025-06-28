@@ -16,6 +16,7 @@ const LoginForm = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     login({ ...formData });
+    console.log('Login attempt:', formData);
     if (formData.role === 'patient') {
       navigate('/patient-dashboard');
     } else {
@@ -25,6 +26,14 @@ const LoginForm = () => {
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleGoogleLogin = () => {
+    console.log('Google login clicked');
+  };
+
+  const handleFacebookLogin = () => {
+    console.log('Facebook login clicked');
   };
 
   return (
@@ -97,7 +106,7 @@ const LoginForm = () => {
             </div>
 
             <div className="text-right">
-              <Link to="/forgot-password" className="text-sm text-white hover:text-gray-200 transition-colors">
+               <Link to="/forgot-password" className="text-sm text-white hover:text-gray-200 transition-colors">
                 Forgot Password?
               </Link>
             </div>
@@ -108,9 +117,11 @@ const LoginForm = () => {
             >
               Login
             </button>
+
             <div className="space-y-3">
               <button
                 type="button"
+                onClick={handleGoogleLogin}
                 className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -124,6 +135,7 @@ const LoginForm = () => {
 
               <button
                 type="button"
+                onClick={handleFacebookLogin}
                 className="w-full bg-white text-gray-700 py-3 px-4 rounded-xl font-semibold border border-gray-200 hover:bg-gray-50 transition-colors duration-200 flex items-center justify-center gap-3"
               >
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="#1877F2">
@@ -135,12 +147,10 @@ const LoginForm = () => {
 
             <div className="text-center text-white">
               <span>Don't have an account? </span>
-              <button type="button" className="font-semibold hover:text-gray-200 transition-colors">
+              <Link to="/register" className="font-semibold hover:text-gray-200 transition-colors">
                 Sign up
-              </button>
+              </Link>
             </div>
-
-
           </form>
         </div>
       </div>
