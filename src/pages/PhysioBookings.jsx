@@ -119,7 +119,7 @@ const PhysioBookings = () => {
                 : 'text-gray-600 hover:text-gray-900'
             }`}
           >
-            Reviews
+            Queries
           </button>
         </div>
 
