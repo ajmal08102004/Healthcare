@@ -24,6 +24,7 @@ import PhysioBookings from './pages/PhysioBookings';
 
 // Other Pages
 import Notifications from './pages/Notifications';
+import Profile from './pages/Profile';
 
 function App() {
   return (
@@ -77,6 +78,12 @@ function App() {
             <Route path="/notifications" element={
               <PrivateRoute>
                 <Notifications />
+              </PrivateRoute>
+            } />
+
+            <Route path="/profile" element={
+              <PrivateRoute>
+                <Profile />
               </PrivateRoute>
             } />
             

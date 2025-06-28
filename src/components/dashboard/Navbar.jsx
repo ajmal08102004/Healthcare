@@ -7,7 +7,8 @@ import {
   Bell, 
   User, 
   LogOut,
-  ChevronDown
+  ChevronDown,
+  Settings
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -44,12 +45,7 @@ const Navbar = () => {
     {
       name: 'Notifications',
       icon: Bell,
-      path: '#',
-      onClick: (e) => {
-        e.preventDefault();
-        // Handle notifications - could open a modal or dropdown
-        alert('Notifications feature coming soon!');
-      }
+      path: '/notifications'
     }
   ];
 
@@ -79,7 +75,6 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   to={item.path}
-                  onClick={item.onClick}
                   className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-emerald-50 text-emerald-600'
@@ -116,6 +111,15 @@ const Navbar = () => {
                     {user?.role}
                   </div>
                 </div>
+                
+                <Link
+                  to="/profile"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                >
+                  <Settings className="h-4 w-4" />
+                  Profile Settings
+                </Link>
                 
                 <button
                   onClick={handleLogout}
