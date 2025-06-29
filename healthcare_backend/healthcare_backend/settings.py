@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'authentication',
     'appointments',
@@ -157,8 +158,10 @@ REST_FRAMEWORK = {
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://work-1-ojdnmoceuwdbxvwo.prod-runtime.all-hands.dev",
-    "https://work-2-ojdnmoceuwdbxvwo.prod-runtime.all-hands.dev",
+    "http://localhost:12000",
+    "http://localhost:12001",
+    "https://work-1-ikdqpcpeecfgaxgz.prod-runtime.all-hands.dev",
+    "https://work-2-ikdqpcpeecfgaxgz.prod-runtime.all-hands.dev",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
