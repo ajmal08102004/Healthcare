@@ -21,21 +21,17 @@ from django.conf.urls.static import static
 from rest_framework.authtoken.views import obtain_auth_token
 
 urlpatterns = [
+    # Admin interface
     path('admin/', admin.site.urls),
-    # Authentication endpoints
-    path('api/auth/', include('authentication.urls')),
+    
+    # Comprehensive RESTful API endpoints
+    path('api/', include('api_urls')),
+    
+    # Authentication token endpoint
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),
     
-    # RESTful API endpoints
-    path('api/', include('authentication.api_urls')),  # Users, profiles
-    path('api/', include('appointments.api_urls')),    # Appointments
-    path('api/', include('exercises.api_urls')),       # Exercises, plans, progress
-    
-    # Legacy endpoints (for backward compatibility)
-    path('api/appointments/', include('appointments.urls')),
-    path('api/exercises/', include('exercises.urls')),
-    path('api/chat/', include('chat.urls')),
-    path('api/notifications/', include('notifications.urls')),
+    # Legacy app-specific URLs (for backward compatibility)
+    path('api/auth/', include('authentication.urls')),
 ]
 
 # Serve media files in development
