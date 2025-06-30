@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import PrivateRoute from './routes/PrivateRoute';
 import RoleBasedRedirect from './routes/RoleBasedRedirect';
 
@@ -25,13 +25,30 @@ import PhysioBookings from './pages/PhysioBookings';
 // Other Pages
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
+import Appointments from './pages/Appointments';
+import Exercises from './pages/Exercises';
+import Users from './pages/Users';
 
-function App() {
+const LoadingSpinner = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-white mx-auto mb-4"></div>
+      <p className="text-white text-lg">Loading Healthcare App...</p>
+    </div>
+  </div>
+);
+
+const AppContent = () => {
+  const { loading } = useAuth();
+
+  if (loading) {
+    return <LoadingSpinner />;
+  }
+
   return (
-    <AuthProvider>
-      <Router>
-        <div className="App">
-          <Routes>
+    <Router>
+      <div className="App">
+        <Routes>
             {/* Public Routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -86,6 +103,24 @@ function App() {
                 <Profile />
               </PrivateRoute>
             } />
+
+            <Route path="/appointments" element={
+              <PrivateRoute>
+                <Appointments />
+              </PrivateRoute>
+            } />
+
+            <Route path="/exercises" element={
+              <PrivateRoute>
+                <Exercises />
+              </PrivateRoute>
+            } />
+
+            <Route path="/users" element={
+              <PrivateRoute>
+                <Users />
+              </PrivateRoute>
+            } />
             
             {/* Redirect routes */}
             <Route path="/" element={<RoleBasedRedirect />} />
@@ -93,6 +128,13 @@ function App() {
           </Routes>
         </div>
       </Router>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
     </AuthProvider>
   );
 }

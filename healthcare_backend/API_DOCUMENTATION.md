@@ -1,289 +1,195 @@
-# Healthcare API Documentation
+# Healthcare Backend API Documentation
 
-This document describes the RESTful API endpoints available in the Healthcare application.
+## Overview
+This document provides comprehensive documentation for the Healthcare Backend RESTful API endpoints. The API provides complete CRUD operations for all healthcare-related entities.
 
 ## Base URL
-```
-http://localhost:8000/api/
-```
+- Development: `http://localhost:12000/api/`
+- Production: `https://your-domain.com/api/`
 
 ## Authentication
-Most endpoints require authentication. Use Token authentication by including the token in the Authorization header:
+All API endpoints require authentication using Token-based authentication.
+
+### Authentication Endpoints
+- `POST /api/auth/register/` - User registration
+- `POST /api/auth/login/` - User login (returns token)
+- `POST /api/auth/logout/` - User logout
+- `POST /api-token-auth/` - Get authentication token
+
+### Headers Required
 ```
-Authorization: Token your_token_here
+Authorization: Token <your-token-here>
+Content-Type: application/json
 ```
 
 ## API Endpoints
 
-### 1. Users Management (`/api/users/`)
+### 1. User Management
 
-#### User ViewSet
-- **GET** `/api/users/` - List all users (filtered by permissions)
-- **POST** `/api/users/` - Create a new user (registration)
-- **GET** `/api/users/{id}/` - Retrieve a specific user
-- **PUT** `/api/users/{id}/` - Update a user (own profile only)
-- **PATCH** `/api/users/{id}/` - Partial update a user
-- **DELETE** `/api/users/{id}/` - Delete a user (own account only)
+#### Users
+- `GET /api/users/` - List all users (filtered by permissions)
+- `GET /api/users/{id}/` - Get specific user details
+- `PUT /api/users/{id}/` - Update user
+- `DELETE /api/users/{id}/` - Delete user
+- `GET /api/users/me/` - Get current user profile
+- `POST /api/users/change_password/` - Change password
+- `GET /api/users/stats/` - Get user statistics
 
-#### Custom User Actions
-- **GET** `/api/users/me/` - Get current user's profile
-- **GET** `/api/users/physiotherapists/` - Get list of available physiotherapists
+#### Patient Profiles
+- `GET /api/patients/` - List patient profiles
+- `POST /api/patients/` - Create patient profile
+- `GET /api/patients/{id}/` - Get patient profile
+- `PUT /api/patients/{id}/` - Update patient profile
+- `DELETE /api/patients/{id}/` - Delete patient profile
 
-#### Query Parameters
-- `user_type`: Filter by user type (patient, physiotherapist, admin)
-- `is_active`: Filter by active status
-- `is_verified`: Filter by verification status
-- `search`: Search in username, email, first_name, last_name
-- `ordering`: Order by username, email, created_at, last_login
+#### Physiotherapist Profiles
+- `GET /api/physiotherapists/` - List physiotherapist profiles
+- `POST /api/physiotherapists/` - Create physiotherapist profile
+- `GET /api/physiotherapists/{id}/` - Get physiotherapist profile
+- `PUT /api/physiotherapists/{id}/` - Update physiotherapist profile
+- `DELETE /api/physiotherapists/{id}/` - Delete physiotherapist profile
+- `GET /api/physiotherapists/available/` - Get available physiotherapists
+- `POST /api/physiotherapists/{id}/toggle_availability/` - Toggle availability
 
-### 2. Patient Profiles (`/api/patient-profiles/`)
+### 2. Appointment Management
 
-#### Patient Profile ViewSet
-- **GET** `/api/patient-profiles/` - List patient profiles
-- **POST** `/api/patient-profiles/` - Create a patient profile
-- **GET** `/api/patient-profiles/{id}/` - Retrieve a patient profile
-- **PUT** `/api/patient-profiles/{id}/` - Update a patient profile
-- **PATCH** `/api/patient-profiles/{id}/` - Partial update a patient profile
-- **DELETE** `/api/patient-profiles/{id}/` - Delete a patient profile
+#### Appointments
+- `GET /api/appointments/` - List appointments (filtered by user role)
+- `POST /api/appointments/` - Create appointment
+- `GET /api/appointments/{id}/` - Get appointment details
+- `PUT /api/appointments/{id}/` - Update appointment
+- `DELETE /api/appointments/{id}/` - Delete appointment
+- `GET /api/appointments/today/` - Get today's appointments
+- `GET /api/appointments/upcoming/` - Get upcoming appointments
+- `POST /api/appointments/{id}/cancel/` - Cancel appointment
+- `POST /api/appointments/{id}/complete/` - Mark appointment as completed
+- `POST /api/appointments/{id}/confirm/` - Confirm appointment
 
-### 3. Physiotherapist Profiles (`/api/physiotherapist-profiles/`)
+#### Appointment Feedback
+- `GET /api/appointment-feedback/` - List appointment feedback
+- `POST /api/appointment-feedback/` - Create feedback
+- `GET /api/appointment-feedback/{id}/` - Get feedback details
+- `PUT /api/appointment-feedback/{id}/` - Update feedback
+- `DELETE /api/appointment-feedback/{id}/` - Delete feedback
 
-#### Physiotherapist Profile ViewSet
-- **GET** `/api/physiotherapist-profiles/` - List physiotherapist profiles
-- **POST** `/api/physiotherapist-profiles/` - Create a physiotherapist profile
-- **GET** `/api/physiotherapist-profiles/{id}/` - Retrieve a physiotherapist profile
-- **PUT** `/api/physiotherapist-profiles/{id}/` - Update a physiotherapist profile
-- **PATCH** `/api/physiotherapist-profiles/{id}/` - Partial update a physiotherapist profile
-- **DELETE** `/api/physiotherapist-profiles/{id}/` - Delete a physiotherapist profile
+#### Appointment Documents
+- `GET /api/appointment-documents/` - List appointment documents
+- `POST /api/appointment-documents/` - Upload document
+- `GET /api/appointment-documents/{id}/` - Get document
+- `PUT /api/appointment-documents/{id}/` - Update document
+- `DELETE /api/appointment-documents/{id}/` - Delete document
 
-#### Query Parameters
-- `is_available`: Filter by availability
-- `years_of_experience`: Filter by experience
-- `search`: Search in name, specializations, education
-- `ordering`: Order by consultation_fee, years_of_experience, name
+### 3. Exercise Management
 
-### 4. Appointments (`/api/appointments/`)
+#### Exercise Categories
+- `GET /api/exercise-categories/` - List exercise categories
+- `POST /api/exercise-categories/` - Create category
+- `GET /api/exercise-categories/{id}/` - Get category details
+- `PUT /api/exercise-categories/{id}/` - Update category
+- `DELETE /api/exercise-categories/{id}/` - Delete category
 
-#### Appointment ViewSet
-- **GET** `/api/appointments/` - List appointments (filtered by user)
-- **POST** `/api/appointments/` - Create a new appointment
-- **GET** `/api/appointments/{id}/` - Retrieve an appointment
-- **PUT** `/api/appointments/{id}/` - Update an appointment
-- **PATCH** `/api/appointments/{id}/` - Partial update an appointment
-- **DELETE** `/api/appointments/{id}/` - Delete an appointment
+#### Exercises
+- `GET /api/exercises/` - List exercises
+- `POST /api/exercises/` - Create exercise
+- `GET /api/exercises/{id}/` - Get exercise details
+- `PUT /api/exercises/{id}/` - Update exercise
+- `DELETE /api/exercises/{id}/` - Delete exercise
+- `GET /api/exercises/by_category/` - Get exercises by category
 
-#### Custom Appointment Actions
-- **POST** `/api/appointments/{id}/add_feedback/` - Add feedback to appointment
-- **GET** `/api/appointments/{id}/feedback/` - Get appointment feedback
-- **GET** `/api/appointments/upcoming/` - Get upcoming appointments
-- **GET** `/api/appointments/past/` - Get past appointments
+#### Exercise Plans
+- `GET /api/exercise-plans/` - List exercise plans
+- `POST /api/exercise-plans/` - Create exercise plan
+- `GET /api/exercise-plans/{id}/` - Get plan details
+- `PUT /api/exercise-plans/{id}/` - Update plan
+- `DELETE /api/exercise-plans/{id}/` - Delete plan
+- `GET /api/exercise-plans/active/` - Get active plans
+- `POST /api/exercise-plans/{id}/activate/` - Activate plan
+- `POST /api/exercise-plans/{id}/complete/` - Complete plan
 
-#### Query Parameters
-- `status`: Filter by status (scheduled, confirmed, completed, cancelled, no_show)
-- `date`: Filter by specific date
-- `physiotherapist`: Filter by physiotherapist ID
-- `patient`: Filter by patient ID
-- `search`: Search in reason, notes
-- `ordering`: Order by date, start_time, created_at
+#### Exercise Plan Items
+- `GET /api/exercise-plan-items/` - List plan items
+- `POST /api/exercise-plan-items/` - Create plan item
+- `GET /api/exercise-plan-items/{id}/` - Get item details
+- `PUT /api/exercise-plan-items/{id}/` - Update item
+- `DELETE /api/exercise-plan-items/{id}/` - Delete item
 
-### 5. Appointment Feedback (`/api/appointment-feedback/`)
+#### Exercise Progress
+- `GET /api/exercise-progress/` - List progress records
+- `POST /api/exercise-progress/` - Create progress record
+- `GET /api/exercise-progress/{id}/` - Get progress details
+- `PUT /api/exercise-progress/{id}/` - Update progress
+- `DELETE /api/exercise-progress/{id}/` - Delete progress
+- `GET /api/exercise-progress/stats/` - Get progress statistics
 
-#### Appointment Feedback ViewSet
-- **GET** `/api/appointment-feedback/` - List feedback (filtered by user)
-- **POST** `/api/appointment-feedback/` - Create feedback
-- **GET** `/api/appointment-feedback/{id}/` - Retrieve feedback
-- **PUT** `/api/appointment-feedback/{id}/` - Update feedback
-- **PATCH** `/api/appointment-feedback/{id}/` - Partial update feedback
-- **DELETE** `/api/appointment-feedback/{id}/` - Delete feedback
+### 4. Communication
 
-#### Query Parameters
-- `rating`: Filter by rating
-- `appointment__status`: Filter by appointment status
-- `ordering`: Order by rating, created_at
+#### Conversations
+- `GET /api/conversations/` - List conversations
+- `POST /api/conversations/` - Create conversation
+- `GET /api/conversations/{id}/` - Get conversation details
+- `PUT /api/conversations/{id}/` - Update conversation
+- `DELETE /api/conversations/{id}/` - Delete conversation
 
-### 6. Exercise Categories (`/api/exercise-categories/`)
+#### Messages
+- `GET /api/messages/` - List messages
+- `POST /api/messages/` - Send message
+- `GET /api/messages/{id}/` - Get message details
+- `PUT /api/messages/{id}/` - Update message
+- `DELETE /api/messages/{id}/` - Delete message
 
-#### Exercise Category ViewSet
-- **GET** `/api/exercise-categories/` - List exercise categories
-- **POST** `/api/exercise-categories/` - Create a category (authenticated users)
-- **GET** `/api/exercise-categories/{id}/` - Retrieve a category
-- **PUT** `/api/exercise-categories/{id}/` - Update a category
-- **PATCH** `/api/exercise-categories/{id}/` - Partial update a category
-- **DELETE** `/api/exercise-categories/{id}/` - Delete a category
+#### Attachments
+- `GET /api/attachments/` - List attachments
+- `POST /api/attachments/` - Upload attachment
+- `GET /api/attachments/{id}/` - Get attachment
+- `PUT /api/attachments/{id}/` - Update attachment
+- `DELETE /api/attachments/{id}/` - Delete attachment
 
-#### Query Parameters
-- `search`: Search in name, description
-- `ordering`: Order by name, created_at
+### 5. Notifications
 
-### 7. Exercises (`/api/exercises/`)
+#### Notifications
+- `GET /api/notifications/` - List user notifications
+- `POST /api/notifications/` - Create notification
+- `GET /api/notifications/{id}/` - Get notification details
+- `PUT /api/notifications/{id}/` - Update notification
+- `DELETE /api/notifications/{id}/` - Delete notification
+- `GET /api/notifications/unread/` - Get unread notifications
+- `POST /api/notifications/mark_all_read/` - Mark all as read
+- `POST /api/notifications/{id}/mark_read/` - Mark specific as read
 
-#### Exercise ViewSet
-- **GET** `/api/exercises/` - List exercises
-- **POST** `/api/exercises/` - Create an exercise (physiotherapists/admins only)
-- **GET** `/api/exercises/{id}/` - Retrieve an exercise
-- **PUT** `/api/exercises/{id}/` - Update an exercise (physiotherapists/admins only)
-- **PATCH** `/api/exercises/{id}/` - Partial update an exercise
-- **DELETE** `/api/exercises/{id}/` - Delete an exercise (physiotherapists/admins only)
+#### Notification Preferences
+- `GET /api/notification-preferences/` - List preferences
+- `POST /api/notification-preferences/` - Create preferences
+- `GET /api/notification-preferences/{id}/` - Get preferences
+- `PUT /api/notification-preferences/{id}/` - Update preferences
+- `DELETE /api/notification-preferences/{id}/` - Delete preferences
 
-#### Query Parameters
-- `category`: Filter by category ID
-- `difficulty`: Filter by difficulty (beginner, intermediate, advanced)
-- `duration`: Filter by duration
-- `search`: Search in name, description
-- `ordering`: Order by name, difficulty, duration, created_at
+## Filtering and Search
 
-### 8. Exercise Plans (`/api/exercise-plans/`)
+### Query Parameters
+- `?search=<term>` - Search across specified fields
+- `?ordering=<field>` - Order results by field (prefix with `-` for descending)
+- `?page=<number>` - Pagination
+- `?page_size=<number>` - Items per page (max 100)
 
-#### Exercise Plan ViewSet
-- **GET** `/api/exercise-plans/` - List exercise plans (filtered by user)
-- **POST** `/api/exercise-plans/` - Create an exercise plan (physiotherapists only)
-- **GET** `/api/exercise-plans/{id}/` - Retrieve an exercise plan
-- **PUT** `/api/exercise-plans/{id}/` - Update an exercise plan
-- **PATCH** `/api/exercise-plans/{id}/` - Partial update an exercise plan
-- **DELETE** `/api/exercise-plans/{id}/` - Delete an exercise plan
-
-#### Custom Exercise Plan Actions
-- **POST** `/api/exercise-plans/{id}/add_exercise/` - Add exercise to plan
-- **GET** `/api/exercise-plans/{id}/exercises/` - Get all exercises in plan
-
-#### Query Parameters
-- `is_active`: Filter by active status
-- `patient`: Filter by patient ID
-- `physiotherapist`: Filter by physiotherapist ID
-- `search`: Search in name, description
-- `ordering`: Order by name, start_date, end_date, created_at
-
-### 9. Exercise Plan Items (`/api/exercise-plan-items/`)
-
-#### Exercise Plan Item ViewSet
-- **GET** `/api/exercise-plan-items/` - List exercise plan items
-- **POST** `/api/exercise-plan-items/` - Create an exercise plan item
-- **GET** `/api/exercise-plan-items/{id}/` - Retrieve an exercise plan item
-- **PUT** `/api/exercise-plan-items/{id}/` - Update an exercise plan item
-- **PATCH** `/api/exercise-plan-items/{id}/` - Partial update an exercise plan item
-- **DELETE** `/api/exercise-plan-items/{id}/` - Delete an exercise plan item
-
-#### Query Parameters
-- `exercise_plan`: Filter by exercise plan ID
-- `exercise`: Filter by exercise ID
-- `day_of_week`: Filter by day of week (0-6)
-- `ordering`: Order by day_of_week
-
-### 10. Exercise Progress (`/api/exercise-progress/`)
-
-#### Exercise Progress ViewSet
-- **GET** `/api/exercise-progress/` - List exercise progress (filtered by user)
-- **POST** `/api/exercise-progress/` - Create exercise progress (patients only)
-- **GET** `/api/exercise-progress/{id}/` - Retrieve exercise progress
-- **PUT** `/api/exercise-progress/{id}/` - Update exercise progress
-- **PATCH** `/api/exercise-progress/{id}/` - Partial update exercise progress
-- **DELETE** `/api/exercise-progress/{id}/` - Delete exercise progress
-
-#### Query Parameters
-- `patient`: Filter by patient ID
-- `exercise_plan_item`: Filter by exercise plan item ID
-- `difficulty_rating`: Filter by difficulty rating (1-5)
-- `pain_level`: Filter by pain level (0-4)
-- `ordering`: Order by date_completed, created_at
-
-### 11. Books (`/api/books/`)
-
-#### Book ViewSet
-- **GET** `/api/books/` - List books
-- **POST** `/api/books/` - Create a book (authenticated users)
-- **GET** `/api/books/{id}/` - Retrieve a book
-- **PUT** `/api/books/{id}/` - Update a book
-- **PATCH** `/api/books/{id}/` - Partial update a book
-- **DELETE** `/api/books/{id}/` - Delete a book
-
-#### Custom Book Actions
-- **POST** `/api/books/{id}/bookmark/` - Bookmark a book
-- **DELETE** `/api/books/{id}/bookmark/` - Remove bookmark
-- **POST** `/api/books/{id}/review/` - Add a review
-- **GET** `/api/books/{id}/reviews/` - Get all reviews for a book
-
-#### Query Parameters
-- `category`: Filter by category ID
-- `book_type`: Filter by book type (educational, reference, research, guide, manual)
-- `language`: Filter by language
-- `is_available`: Filter by availability
-- `author`: Filter by author name (contains)
-- `year`: Filter by publication year
-- `search`: Search in title, author, description, publisher
-- `ordering`: Order by title, author, publication_date, created_at
-
-### 12. Book Categories (`/api/categories/`)
-
-#### Book Category ViewSet
-- **GET** `/api/categories/` - List book categories
-- **POST** `/api/categories/` - Create a category (authenticated users)
-- **GET** `/api/categories/{id}/` - Retrieve a category
-- **PUT** `/api/categories/{id}/` - Update a category
-- **PATCH** `/api/categories/{id}/` - Partial update a category
-- **DELETE** `/api/categories/{id}/` - Delete a category
-
-#### Query Parameters
-- `search`: Search in name, description
-- `ordering`: Order by name, created_at
-
-### 13. Book Reviews (`/api/reviews/`)
-
-#### Book Review ViewSet
-- **GET** `/api/reviews/` - List user's book reviews
-- **POST** `/api/reviews/` - Create a book review
-- **GET** `/api/reviews/{id}/` - Retrieve a book review
-- **PUT** `/api/reviews/{id}/` - Update a book review
-- **PATCH** `/api/reviews/{id}/` - Partial update a book review
-- **DELETE** `/api/reviews/{id}/` - Delete a book review
-
-### 14. Book Bookmarks (`/api/bookmarks/`)
-
-#### Book Bookmark ViewSet (Read-only)
-- **GET** `/api/bookmarks/` - List user's bookmarked books
-- **GET** `/api/bookmarks/{id}/` - Retrieve a bookmark
-
-## Authentication Endpoints
-
-### Registration and Login
-- **POST** `/api/auth/register/` - Register a new user
-- **POST** `/api/auth/login/` - Login user
-- **POST** `/api/auth/logout/` - Logout user
-- **POST** `/api-token-auth/` - Get authentication token
-
-### Profile Management
-- **GET** `/api/auth/profile/` - Get user profile
-- **PUT** `/api/auth/profile/` - Update user profile
-- **GET** `/api/auth/patient-profile/` - Get patient profile
-- **PUT** `/api/auth/patient-profile/` - Update patient profile
-- **GET** `/api/auth/physiotherapist-profile/` - Get physiotherapist profile
-- **PUT** `/api/auth/physiotherapist-profile/` - Update physiotherapist profile
-- **POST** `/api/auth/change-password/` - Change password
-- **GET** `/api/auth/physiotherapists/` - List available physiotherapists
+### Filtering Examples
+- `GET /api/appointments/?status=scheduled` - Filter by status
+- `GET /api/exercises/?category=1&difficulty=beginner` - Multiple filters
+- `GET /api/notifications/?is_read=false` - Filter unread notifications
+- `GET /api/users/?search=john` - Search users by name
 
 ## Response Format
-
-All API responses follow a consistent format:
 
 ### Success Response
 ```json
 {
-  "id": 1,
-  "field1": "value1",
-  "field2": "value2",
-  ...
-}
-```
-
-### List Response
-```json
-{
-  "count": 100,
-  "next": "http://localhost:8000/api/endpoint/?page=2",
+  "count": 25,
+  "next": "http://localhost:12000/api/appointments/?page=2",
   "previous": null,
   "results": [
     {
       "id": 1,
       "field1": "value1",
+      "field2": "value2",
       ...
     }
   ]
@@ -293,41 +199,95 @@ All API responses follow a consistent format:
 ### Error Response
 ```json
 {
-  "error": "Error message",
+  "detail": "Error message",
   "field_errors": {
-    "field_name": ["Field specific error"]
+    "field_name": ["Error for this field"]
   }
 }
 ```
 
+## HTTP Status Codes
+- `200 OK` - Successful GET, PUT, PATCH
+- `201 Created` - Successful POST
+- `204 No Content` - Successful DELETE
+- `400 Bad Request` - Invalid request data
+- `401 Unauthorized` - Authentication required
+- `403 Forbidden` - Permission denied
+- `404 Not Found` - Resource not found
+- `500 Internal Server Error` - Server error
+
+## Sample API Calls
+
+### Login
+```bash
+curl -X POST "http://localhost:12000/api/auth/login/" \
+  -H "Content-Type: application/json" \
+  -d '{"username": "patient1", "password": "password123"}'
+```
+
+### Get Appointments
+```bash
+curl -X GET "http://localhost:12000/api/appointments/" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token your-token-here"
+```
+
+### Create Appointment
+```bash
+curl -X POST "http://localhost:12000/api/appointments/" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Token your-token-here" \
+  -d '{
+    "physiotherapist": 1,
+    "date": "2025-07-01",
+    "start_time": "10:00:00",
+    "end_time": "11:00:00",
+    "appointment_type": "consultation",
+    "reason": "Back pain assessment"
+  }'
+```
+
 ## Permissions
 
-- **Public**: No authentication required
-- **Authenticated**: Requires valid authentication token
-- **Owner**: User can only access/modify their own resources
-- **Physiotherapist**: Only physiotherapists can perform certain actions
-- **Admin**: Only admin users can perform certain actions
+### User Types
+- **Patient**: Can view/edit own data, create appointments, view assigned exercises
+- **Physiotherapist**: Can view assigned patients, manage appointments, create exercise plans
+- **Admin**: Full access to all endpoints
 
-## Filtering and Searching
+### Permission Classes
+- `IsAuthenticated` - Requires valid authentication
+- `IsOwnerOrReadOnly` - Can edit own data, read others
+- `IsPhysiotherapistOrReadOnly` - Physiotherapists can edit, others read-only
 
-Most list endpoints support:
-- **Filtering**: Use query parameters to filter results
-- **Searching**: Use `search` parameter for text search
-- **Ordering**: Use `ordering` parameter to sort results
-- **Pagination**: Results are paginated with 20 items per page by default
+## Rate Limiting
+- Default: 1000 requests per hour per user
+- Authentication endpoints: 100 requests per hour per IP
 
-Example:
-```
-GET /api/books/?category=1&search=python&ordering=title&page=2
-```
+## Pagination
+- Default page size: 20 items
+- Maximum page size: 100 items
+- Use `page` and `page_size` query parameters
 
-## Status Codes
+## Data Validation
+All endpoints include comprehensive data validation:
+- Required fields validation
+- Format validation (email, phone, dates)
+- Business logic validation
+- Permission-based validation
 
-- **200 OK**: Successful GET, PUT, PATCH
-- **201 Created**: Successful POST
-- **204 No Content**: Successful DELETE
-- **400 Bad Request**: Invalid request data
-- **401 Unauthorized**: Authentication required
-- **403 Forbidden**: Permission denied
-- **404 Not Found**: Resource not found
-- **500 Internal Server Error**: Server error
+## Error Handling
+The API provides detailed error messages for:
+- Validation errors
+- Permission errors
+- Authentication errors
+- Business logic violations
+- Server errors
+
+## Testing
+Sample data is available for testing:
+- Users: patient1/password123, physio1/password123
+- Admin: admin/admin123
+- Sample appointments, exercises, and notifications included
+
+## Support
+For API support and questions, please contact the development team.
