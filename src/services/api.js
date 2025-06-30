@@ -160,51 +160,7 @@ class ApiService {
     return this.get('/users/physiotherapists/');
   }
 
-  // Books methods
-  async getBooks(params = {}) {
-    return this.get('/books/', params);
-  }
 
-  async getBook(id) {
-    return this.get(`/books/${id}/`);
-  }
-
-  async createBook(data) {
-    return this.post('/books/', data);
-  }
-
-  async updateBook(id, data) {
-    return this.patch(`/books/${id}/`, data);
-  }
-
-  async deleteBook(id) {
-    return this.delete(`/books/${id}/`);
-  }
-
-  async bookmarkBook(id) {
-    return this.post(`/books/${id}/bookmark/`);
-  }
-
-  async removeBookmark(id) {
-    return this.delete(`/books/${id}/bookmark/`);
-  }
-
-  async addBookReview(id, reviewData) {
-    return this.post(`/books/${id}/review/`, reviewData);
-  }
-
-  async getBookReviews(id) {
-    return this.get(`/books/${id}/reviews/`);
-  }
-
-  // Book categories
-  async getBookCategories() {
-    return this.get('/categories/');
-  }
-
-  async createBookCategory(data) {
-    return this.post('/categories/', data);
-  }
 
   // Appointments methods
   async getAppointments(params = {}) {

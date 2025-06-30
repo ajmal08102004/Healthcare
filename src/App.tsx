@@ -25,7 +25,9 @@ import PhysioBookings from './pages/PhysioBookings';
 // Other Pages
 import Notifications from './pages/Notifications';
 import Profile from './pages/Profile';
-import Books from './pages/Books';
+import Appointments from './pages/Appointments';
+import Exercises from './pages/Exercises';
+import Users from './pages/Users';
 
 const LoadingSpinner = () => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-400 via-cyan-400 to-blue-500">
@@ -102,9 +104,21 @@ const AppContent = () => {
               </PrivateRoute>
             } />
 
-            <Route path="/books" element={
+            <Route path="/appointments" element={
               <PrivateRoute>
-                <Books />
+                <Appointments />
+              </PrivateRoute>
+            } />
+
+            <Route path="/exercises" element={
+              <PrivateRoute>
+                <Exercises />
+              </PrivateRoute>
+            } />
+
+            <Route path="/users" element={
+              <PrivateRoute>
+                <Users />
               </PrivateRoute>
             } />
             

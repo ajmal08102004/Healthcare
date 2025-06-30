@@ -30,7 +30,6 @@ urlpatterns = [
     path('api/', include('authentication.api_urls')),  # Users, profiles
     path('api/', include('appointments.api_urls')),    # Appointments
     path('api/', include('exercises.api_urls')),       # Exercises, plans, progress
-    path('api/', include('books.urls')),               # Books
     
     # Legacy endpoints (for backward compatibility)
     path('api/appointments/', include('appointments.urls')),

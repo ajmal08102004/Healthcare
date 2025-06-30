@@ -2,7 +2,7 @@
 
 ## 🔗 API Integration Status
 
-The Healthcare React frontend is now **fully integrated** with the Django REST API backend. This document outlines the integration details and how to use the connected system.
+The Healthcare React frontend is now **fully integrated** with the Django REST API backend. This document outlines the integration details and how to use the connected system for core healthcare management features.
 
 ## ✅ What's Integrated
 
@@ -18,11 +18,11 @@ The Healthcare React frontend is now **fully integrated** with the Django REST A
 - **Error Handling**: Comprehensive error handling for all API calls
 - **CRUD Operations**: Full Create, Read, Update, Delete operations for all resources
 
-### 3. Books Integration
-- **Books List Component**: `src/components/books/BooksList.jsx` displays real book data
-- **Search & Filtering**: Real-time search and filtering using API endpoints
-- **Bookmark Functionality**: Users can bookmark books via API
-- **Category Management**: Dynamic category loading from API
+### 3. Core Healthcare Features Integration
+- **Appointments Management**: Complete appointment scheduling and management system
+- **Exercise Library**: Comprehensive exercise management with plans and progress tracking
+- **User Management**: Patient and physiotherapist management for admin users
+- **Real-time Data**: All components now use live data from the API
 
 ## 🚀 How to Use the Integrated System
 
@@ -52,10 +52,11 @@ Use the sample users created by the populate script:
 ### Testing the Integration
 
 1. **Login**: Use real credentials to authenticate
-2. **Navigate to Books**: Go to `/books` to see the integrated books list
-3. **Search & Filter**: Test real-time search and filtering
-4. **Bookmark Books**: Test the bookmark functionality
-5. **API Responses**: Check browser console for API responses
+2. **Navigate to Appointments**: Go to `/appointments` to see appointment management
+3. **Browse Exercises**: Go to `/exercises` to explore the exercise library
+4. **User Management**: Go to `/users` (admin/physio only) to manage users
+5. **Search & Filter**: Test real-time search and filtering across all components
+6. **API Responses**: Check browser console for API responses
 
 ## 📁 File Structure
 
@@ -68,11 +69,17 @@ src/
 ├── components/
 │   ├── auth/
 │   │   └── LoginForm.jsx      # Updated to use real API
-│   └── books/
-│       └── BooksList.jsx      # New component with API integration
+│   ├── appointments/
+│   │   └── AppointmentsList.jsx # Appointments management component
+│   ├── exercises/
+│   │   └── ExercisesList.jsx  # Exercise library component
+│   └── users/
+│       └── UsersList.jsx      # User management component
 ├── pages/
-│   └── Books.jsx              # Books page
-└── App.tsx                    # Updated with loading states and Books route
+│   ├── Appointments.jsx       # Appointments page
+│   ├── Exercises.jsx          # Exercises page
+│   └── Users.jsx              # Users page
+└── App.tsx                    # Updated with loading states and new routes
 ```
 
 ## 🔧 API Service Features
@@ -92,19 +99,19 @@ await apiService.logout();
 const user = await apiService.getCurrentUser();
 ```
 
-### Books API Methods
+### Appointments API Methods
 ```javascript
-// Get books with filtering
-const books = await apiService.getBooks({ search: 'term', category: 1 });
+// Get appointments with filtering
+const appointments = await apiService.getAppointments({ search: 'term' });
 
-// Get single book
-const book = await apiService.getBook(bookId);
+// Get upcoming appointments
+const upcoming = await apiService.getUpcomingAppointments();
 
-// Bookmark a book
-await apiService.bookmarkBook(bookId);
+// Create appointment
+await apiService.createAppointment(appointmentData);
 
-// Add review
-await apiService.addBookReview(bookId, { rating: 5, comment: 'Great!' });
+// Update appointment
+await apiService.updateAppointment(appointmentId, updateData);
 ```
 
 ### Users API Methods
@@ -119,17 +126,7 @@ const physios = await apiService.getPhysiotherapists();
 await apiService.updateUser(userId, updateData);
 ```
 
-### Appointments API Methods
-```javascript
-// Get appointments
-const appointments = await apiService.getAppointments();
 
-// Create appointment
-await apiService.createAppointment(appointmentData);
-
-// Get upcoming appointments
-const upcoming = await apiService.getUpcomingAppointments();
-```
 
 ### Exercises API Methods
 ```javascript
@@ -164,19 +161,19 @@ The backend is configured to accept requests from:
 
 The integrated system includes:
 - **5 Users** (admin, patients, physiotherapists)
-- **5 Books** across 3 categories
 - **4 Appointments** (past and future)
 - **5 Exercises** across 3 categories
 - **2 Exercise Plans** with progress tracking
+- **Complete user profiles** with healthcare-specific information
 
 ## 🧪 Testing the Integration
 
 ### Manual Testing
 1. Login with sample credentials
-2. Navigate to different pages
-3. Test CRUD operations
-4. Verify data persistence
-5. Check error handling
+2. Navigate to appointments, exercises, and users pages
+3. Test search and filtering functionality
+4. Verify data persistence and real-time updates
+5. Check error handling and loading states
 
 ### API Testing
 ```bash
@@ -185,17 +182,26 @@ curl -X POST http://localhost:12000/api-token-auth/ \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "admin123"}'
 
-# Test books endpoint
+# Test appointments endpoint
 curl -H "Authorization: Token YOUR_TOKEN" \
-  http://localhost:12000/api/books/
+  http://localhost:12000/api/appointments/
+
+# Test exercises endpoint
+curl -H "Authorization: Token YOUR_TOKEN" \
+  http://localhost:12000/api/exercises/
+
+# Test users endpoint
+curl -H "Authorization: Token YOUR_TOKEN" \
+  http://localhost:12000/api/users/
 ```
 
 ## 🔄 Real-time Features
 
-- **Live Search**: Search results update as you type
-- **Dynamic Filtering**: Filters applied immediately
-- **Instant Bookmarks**: Bookmark status updates immediately
+- **Live Search**: Search results update as you type across all components
+- **Dynamic Filtering**: Filters applied immediately for appointments, exercises, and users
+- **Instant Updates**: Data updates immediately without page refresh
 - **Error Feedback**: Real-time error messages for failed operations
+- **Loading States**: Proper loading indicators during API calls
 
 ## 🛠️ Development Workflow
 
@@ -208,10 +214,10 @@ curl -H "Authorization: Token YOUR_TOKEN" \
 ## 🚀 Next Steps
 
 ### Immediate Enhancements
-- Add more components for other resources (appointments, exercises)
-- Implement real-time notifications
-- Add form validation
-- Enhance error handling UI
+- Add appointment booking forms
+- Implement exercise progress tracking
+- Add real-time notifications
+- Enhance form validation and error handling UI
 
 ### Advanced Features
 - WebSocket integration for real-time updates
@@ -230,11 +236,13 @@ curl -H "Authorization: Token YOUR_TOKEN" \
 ## 🎉 Success!
 
 The Healthcare application now has a **fully functional** frontend-backend integration with:
-- ✅ Real authentication
-- ✅ Live data from API
-- ✅ CRUD operations
-- ✅ Error handling
-- ✅ Loading states
-- ✅ Role-based access
+- ✅ Real authentication and user management
+- ✅ Live appointment management system
+- ✅ Comprehensive exercise library and plans
+- ✅ User management for admin and physiotherapists
+- ✅ Real-time search and filtering
+- ✅ Complete CRUD operations
+- ✅ Error handling and loading states
+- ✅ Role-based access control
 
-The system is ready for further development and can be extended with additional features as needed!
+The system provides a solid foundation for a complete healthcare management platform with core features fully integrated!

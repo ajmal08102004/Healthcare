@@ -46,7 +46,6 @@ INSTALLED_APPS = [
     'chat',
     'exercises',
     'notifications',
-    'books',
 ]
 
 MIDDLEWARE = [

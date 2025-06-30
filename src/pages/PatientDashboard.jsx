@@ -1,5 +1,6 @@
 import React from 'react';
-import { CheckCircle, Lightbulb, Calendar, Flame, Clock, Smile } from 'lucide-react';
+import { CheckCircle, Lightbulb, Calendar, Flame, Clock, Smile, Activity, Users, CalendarDays } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/dashboard/Navbar';
 import StatCard from '../components/dashboard/StatCard';
 import RadialProgressChart from '../components/charts/RadialProgressChart';
@@ -69,6 +70,57 @@ const PatientDashboard = () => {
             subtitle="Much improved"
             trend={-40}
           />
+        </div>
+
+        {/* Quick Access Navigation */}
+        <div className="mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Access</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Link 
+              to="/appointments" 
+              className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 hover:border-blue-300"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-blue-100 rounded-lg">
+                  <CalendarDays className="h-6 w-6 text-blue-600" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="font-medium text-gray-900">My Appointments</h3>
+                  <p className="text-sm text-gray-600">View and manage appointments</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link 
+              to="/exercises" 
+              className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 hover:border-green-300"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-green-100 rounded-lg">
+                  <Activity className="h-6 w-6 text-green-600" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="font-medium text-gray-900">Exercise Library</h3>
+                  <p className="text-sm text-gray-600">Browse exercises and plans</p>
+                </div>
+              </div>
+            </Link>
+
+            <Link 
+              to="/profile" 
+              className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200 hover:border-purple-300"
+            >
+              <div className="flex items-center">
+                <div className="p-3 bg-purple-100 rounded-lg">
+                  <Users className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="ml-4">
+                  <h3 className="font-medium text-gray-900">My Profile</h3>
+                  <p className="text-sm text-gray-600">Update personal information</p>
+                </div>
+              </div>
+            </Link>
+          </div>
         </div>
 
         {/* Main Dashboard Grid */}
