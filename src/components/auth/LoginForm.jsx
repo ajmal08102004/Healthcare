@@ -13,34 +13,14 @@ const LoginForm = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    
-    try {
-      const credentials = {
-        email: formData.email,
-        password: formData.password,
-      };
-      
-      const result = await login(credentials);
-      
-      if (result.success) {
-        console.log('Login successful:', result.user);
-        // Navigate based on user type from API response
-        if (result.user.user_type === 'patient') {
-          navigate('/patient-dashboard');
-        } else if (result.user.user_type === 'physiotherapist') {
-          navigate('/physio-dashboard');
-        } else {
-          navigate('/patient-dashboard'); // Default fallback
-        }
-      } else {
-        console.error('Login failed:', result.error);
-        alert('Login failed: ' + result.error);
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed. Please try again.');
+    login({ ...formData });
+    console.log('Login attempt:', formData);
+    if (formData.role === 'patient') {
+      navigate('/patient-dashboard');
+    } else {
+      navigate('/physio-dashboard');
     }
   };
 

@@ -16,7 +16,7 @@ from django.contrib.auth import get_user_model
 from authentication.models import PatientProfile, PhysiotherapistProfile
 from appointments.models import Appointment, AppointmentFeedback
 from exercises.models import ExerciseCategory, Exercise, ExercisePlan, ExercisePlanItem, ExerciseProgress
-
+from books.models import BookCategory, Book, BookReview, BookBookmark
 
 User = get_user_model()
 
@@ -356,7 +356,127 @@ def create_exercise_plans(patient1, patient2, physio1, physio2):
     
     print("Exercise plans created successfully!")
 
+def create_books():
+    """Create sample books and categories"""
+    print("Creating books...")
+    
+    # Create book categories
+    physio_cat = BookCategory.objects.create(
+        name="Physiotherapy",
+        description="Books related to physiotherapy and rehabilitation"
+    )
+    
+    anatomy_cat = BookCategory.objects.create(
+        name="Anatomy & Physiology",
+        description="Books on human anatomy and physiological processes"
+    )
+    
+    exercise_cat = BookCategory.objects.create(
+        name="Exercise Science",
+        description="Books on exercise science and kinesiology"
+    )
+    
+    # Create books
+    book1 = Book.objects.create(
+        title="Fundamentals of Physical Therapy",
+        author="Dr. Robert Smith",
+        isbn="9781234567890",
+        description="Comprehensive guide to physical therapy principles and practices",
+        category=physio_cat,
+        book_type='educational',
+        publication_date=date(2022, 1, 15),
+        publisher="Medical Publishers Inc.",
+        pages=450,
+        language="English",
+        is_available=True
+    )
+    
+    book2 = Book.objects.create(
+        title="Human Anatomy Atlas",
+        author="Dr. Emily Johnson",
+        isbn="9781234567891",
+        description="Detailed anatomical reference with illustrations",
+        category=anatomy_cat,
+        book_type='reference',
+        publication_date=date(2021, 8, 10),
+        publisher="Science Books Ltd.",
+        pages=600,
+        language="English",
+        is_available=True
+    )
+    
+    book3 = Book.objects.create(
+        title="Exercise Prescription Manual",
+        author="Dr. Michael Brown",
+        isbn="9781234567892",
+        description="Evidence-based exercise prescription for various conditions",
+        category=exercise_cat,
+        book_type='manual',
+        publication_date=date(2023, 3, 22),
+        publisher="Health Publications",
+        pages=320,
+        language="English",
+        is_available=True
+    )
+    
+    book4 = Book.objects.create(
+        title="Rehabilitation Techniques",
+        author="Dr. Sarah Wilson",
+        isbn="9781234567893",
+        description="Modern rehabilitation techniques and methodologies",
+        category=physio_cat,
+        book_type='guide',
+        publication_date=date(2022, 11, 5),
+        publisher="Therapy Press",
+        pages=380,
+        language="English",
+        is_available=True
+    )
+    
+    print("Books created successfully!")
+    return book1, book2, book3, book4
 
+def create_book_interactions(patient1, patient2, physio1, physio2, book1, book2, book3, book4):
+    """Create sample book reviews and bookmarks"""
+    print("Creating book interactions...")
+    
+    # Create bookmarks
+    BookBookmark.objects.create(book=book1, user=patient1)
+    BookBookmark.objects.create(book=book2, user=patient1)
+    BookBookmark.objects.create(book=book3, user=physio1)
+    BookBookmark.objects.create(book=book4, user=physio1)
+    BookBookmark.objects.create(book=book1, user=physio2)
+    
+    # Create reviews
+    BookReview.objects.create(
+        book=book1,
+        user=patient1,
+        rating=5,
+        review_text="Excellent book! Very helpful for understanding my treatment."
+    )
+    
+    BookReview.objects.create(
+        book=book2,
+        user=physio1,
+        rating=4,
+        review_text="Great reference book with detailed illustrations."
+    )
+    
+    BookReview.objects.create(
+        book=book3,
+        user=physio2,
+        rating=5,
+        review_text="Essential manual for any physiotherapist. Highly recommended!"
+    )
+    
+    BookReview.objects.create(
+        book=book4,
+        user=patient2,
+        rating=4,
+        review_text="Good overview of rehabilitation techniques."
+    )
+    
+    print("Book interactions created successfully!")
 
 def main():
     """Main function to populate all sample data"""
@@ -371,6 +491,10 @@ def main():
     # Create exercises and plans
     create_exercises()
     create_exercise_plans(patient1, patient2, physio1, physio2)
+    
+    # Create books
+    book1, book2, book3, book4 = create_books()
+    create_book_interactions(patient1, patient2, physio1, physio2, book1, book2, book3, book4)
     
     print("\n" + "="*50)
     print("Sample data populated successfully!")
