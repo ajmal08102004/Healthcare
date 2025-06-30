@@ -1,5 +1,7 @@
 Django==5.2.3
 djangorestframework==3.16.0
 django-cors-headers==4.7.0
+django-filter==25.1
 psycopg2-binary==2.9.10
 Pillow==11.2.1
+requests==2.32.3

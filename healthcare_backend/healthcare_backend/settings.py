@@ -40,11 +40,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'corsheaders',
+    'django_filters',
     'authentication',
     'appointments',
     'chat',
     'exercises',
     'notifications',
+    'books',
 ]
 
 MIDDLEWARE = [
@@ -83,12 +85,8 @@ WSGI_APPLICATION = 'healthcare_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'healthcare_db',
-        'USER': 'healthcare_user',
-        'PASSWORD': 'healthcare_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
