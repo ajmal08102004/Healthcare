@@ -1,317 +1,213 @@
-from rest_framework import viewsets, status, permissions
-from rest_framework.decorators import action
+from django.shortcuts import get_object_or_404
+from rest_framework import status, permissions, generics
 from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
-from django.utils import timezone
-from django.db.models import Q, Count, Avg, Sum
-from datetime import datetime, timedelta
-from .models import ExerciseCategory, Exercise, ExercisePlan, ExercisePlanItem, ExerciseProgress
+from .models import (
+    ExerciseCategory, Exercise, ExercisePlan, 
+    ExercisePlanItem, ExerciseProgress
+)
 from .serializers import (
-    ExerciseCategorySerializer, ExerciseSerializer, ExercisePlanSerializer,
+    ExerciseCategorySerializer, ExerciseSerializer, 
+    ExercisePlanSerializer, ExercisePlanCreateSerializer,
     ExercisePlanItemSerializer, ExerciseProgressSerializer,
-    ExercisePlanCreateSerializer, ExerciseProgressCreateSerializer
+    ExerciseProgressCreateSerializer
 )
 
-class ExerciseCategoryViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing exercise categories
-    """
+class ExerciseCategoryListView(generics.ListAPIView):
+    queryset = ExerciseCategory.objects.all()
     serializer_class = ExerciseCategorySerializer
     permission_classes = [IsAuthenticated]
-    
-    def get_queryset(self):
-        return ExerciseCategory.objects.filter(is_active=True).order_by('sort_order', 'name')
 
-class ExerciseViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing exercises
-    """
+class ExerciseListView(generics.ListAPIView):
     serializer_class = ExerciseSerializer
     permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        queryset = Exercise.objects.filter(is_active=True).select_related('category', 'created_by')
+        queryset = Exercise.objects.all()
         
-        # Filter by category
-        category = self.request.query_params.get('category')
+        # Filter by category if provided
+        category = self.request.query_params.get('category', None)
         if category:
-            queryset = queryset.filter(category_id=category)
-        
-        # Filter by difficulty
-        difficulty = self.request.query_params.get('difficulty')
+            queryset = queryset.filter(category__id=category)
+            
+        # Filter by difficulty if provided
+        difficulty = self.request.query_params.get('difficulty', None)
         if difficulty:
             queryset = queryset.filter(difficulty=difficulty)
-        
-        # Search by name or description
-        search = self.request.query_params.get('search')
-        if search:
-            queryset = queryset.filter(
-                Q(name__icontains=search) | 
-                Q(description__icontains=search) |
-                Q(instructions__icontains=search)
-            )
-        
-        return queryset.order_by('name')
-    
-    @action(detail=False, methods=['get'])
-    def popular(self, request):
-        """Get most popular exercises based on usage in plans"""
-        exercises = self.get_queryset().annotate(
-            usage_count=Count('exerciseplanitem')
-        ).filter(usage_count__gt=0).order_by('-usage_count')[:10]
-        
-        serializer = self.get_serializer(exercises, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=False, methods=['get'])
-    def by_body_part(self, request):
-        """Get exercises grouped by target body parts"""
-        body_part = request.query_params.get('body_part')
-        if not body_part:
-            return Response({'error': 'body_part parameter required'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
-        
-        exercises = self.get_queryset().filter(
-            target_body_parts__icontains=body_part
-        )
-        serializer = self.get_serializer(exercises, many=True)
-        return Response(serializer.data)
+            
+        return queryset
 
-class ExercisePlanViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing exercise plans
-    """
+class ExerciseDetailView(generics.RetrieveAPIView):
+    queryset = Exercise.objects.all()
+    serializer_class = ExerciseSerializer
+    permission_classes = [IsAuthenticated]
+
+class ExercisePlanListCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return ExercisePlanCreateSerializer
-        return ExercisePlanSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        queryset = ExercisePlan.objects.select_related(
-            'patient', 'physiotherapist'
-        ).prefetch_related('items__exercise', 'progress_records')
+    def get(self, request):
+        user = request.user
         
         if user.user_type == 'patient':
-            queryset = queryset.filter(patient=user)
+            plans = ExercisePlan.objects.filter(patient=user)
         elif user.user_type == 'physiotherapist':
-            queryset = queryset.filter(physiotherapist=user)
-        
-        # Filter by status
-        status_filter = self.request.query_params.get('status')
-        if status_filter:
-            queryset = queryset.filter(status=status_filter)
-        
-        return queryset.order_by('-created_at')
-    
-    def perform_create(self, serializer):
-        if self.request.user.user_type == 'physiotherapist':
-            serializer.save(physiotherapist=self.request.user)
+            plans = ExercisePlan.objects.filter(physiotherapist=user)
         else:
-            serializer.save()
-    
-    @action(detail=False, methods=['get'])
-    def active(self, request):
-        """Get active exercise plans"""
-        queryset = self.get_queryset().filter(status='active', is_active=True)
-        serializer = self.get_serializer(queryset, many=True)
+            plans = ExercisePlan.objects.all()
+            
+        # Filter by active status if provided
+        is_active = request.query_params.get('is_active', None)
+        if is_active is not None:
+            is_active = is_active.lower() == 'true'
+            plans = plans.filter(is_active=is_active)
+            
+        serializer = ExercisePlanSerializer(plans, many=True)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['post'])
-    def activate(self, request, pk=None):
-        """Activate an exercise plan"""
-        plan = self.get_object()
-        
+    def post(self, request):
+        # Only physiotherapists can create exercise plans
         if request.user.user_type != 'physiotherapist':
             return Response(
-                {'error': 'Only physiotherapists can activate plans'},
+                {'error': 'Only physiotherapists can create exercise plans'},
                 status=status.HTTP_403_FORBIDDEN
             )
+            
+        serializer = ExercisePlanCreateSerializer(
+            data=request.data, 
+            context={'request': request}
+        )
         
-        plan.status = 'active'
-        plan.save()
+        if serializer.is_valid():
+            plan = serializer.save()
+            return Response(
+                ExercisePlanSerializer(plan).data, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class ExercisePlanDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    def get_exercise_plan(self, pk, user):
+        plan = get_object_or_404(ExercisePlan, pk=pk)
         
-        serializer = self.get_serializer(plan)
+        # Check if user has permission to access this plan
+        if user.user_type == 'patient' and plan.patient != user:
+            self.permission_denied(self.request)
+        elif user.user_type == 'physiotherapist' and plan.physiotherapist != user:
+            self.permission_denied(self.request)
+            
+        return plan
+    
+    def get(self, request, pk):
+        plan = self.get_exercise_plan(pk, request.user)
+        serializer = ExercisePlanSerializer(plan)
         return Response(serializer.data)
     
-    @action(detail=True, methods=['post'])
-    def complete(self, request, pk=None):
-        """Mark exercise plan as completed"""
-        plan = self.get_object()
+    def put(self, request, pk):
+        plan = self.get_exercise_plan(pk, request.user)
         
+        # Only physiotherapists can update exercise plans
         if request.user.user_type != 'physiotherapist':
             return Response(
-                {'error': 'Only physiotherapists can complete plans'},
+                {'error': 'Only physiotherapists can update exercise plans'},
                 status=status.HTTP_403_FORBIDDEN
             )
-        
-        plan.status = 'completed'
-        plan.save()
-        
-        serializer = self.get_serializer(plan)
-        return Response(serializer.data)
+            
+        serializer = ExercisePlanSerializer(plan, data=request.data, partial=True)
+        if serializer.is_valid():
+            updated_plan = serializer.save()
+            return Response(ExercisePlanSerializer(updated_plan).data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=True, methods=['get'])
-    def progress_summary(self, request, pk=None):
-        """Get progress summary for the plan"""
-        plan = self.get_object()
+    def delete(self, request, pk):
+        plan = self.get_exercise_plan(pk, request.user)
         
-        total_items = plan.items.count()
-        completed_progress = ExerciseProgress.objects.filter(
-            exercise_plan_item__exercise_plan=plan,
-            completion_status='completed'
-        ).count()
-        
-        progress_percentage = (completed_progress / total_items * 100) if total_items > 0 else 0
-        
-        # Get recent progress
-        recent_progress = ExerciseProgress.objects.filter(
-            exercise_plan_item__exercise_plan=plan
-        ).order_by('-date_completed')[:5]
-        
-        progress_data = ExerciseProgressSerializer(recent_progress, many=True).data
-        
-        return Response({
-            'total_exercises': total_items,
-            'completed_sessions': completed_progress,
-            'progress_percentage': round(progress_percentage, 2),
-            'recent_progress': progress_data
-        })
+        # Only physiotherapists can delete exercise plans
+        if request.user.user_type != 'physiotherapist':
+            return Response(
+                {'error': 'Only physiotherapists can delete exercise plans'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        plan.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ExercisePlanItemViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing exercise plan items
-    """
-    serializer_class = ExercisePlanItemSerializer
+class ExercisePlanItemView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get_queryset(self):
-        user = self.request.user
-        queryset = ExercisePlanItem.objects.select_related(
-            'exercise_plan__patient', 'exercise_plan__physiotherapist', 'exercise'
-        )
+    def post(self, request, plan_id):
+        # Get the exercise plan
+        plan = get_object_or_404(ExercisePlan, pk=plan_id)
         
-        if user.user_type == 'patient':
-            queryset = queryset.filter(exercise_plan__patient=user)
-        elif user.user_type == 'physiotherapist':
-            queryset = queryset.filter(exercise_plan__physiotherapist=user)
-        
-        # Filter by exercise plan
-        plan_id = self.request.query_params.get('plan')
-        if plan_id:
-            queryset = queryset.filter(exercise_plan_id=plan_id)
-        
-        # Filter by day of week
-        day = self.request.query_params.get('day')
-        if day:
-            queryset = queryset.filter(day_of_week=day)
-        
-        return queryset.order_by('day_of_week', 'exercise__name')
+        # Only the physiotherapist who created the plan can add items
+        if request.user != plan.physiotherapist:
+            return Response(
+                {'error': 'You do not have permission to add items to this plan'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        serializer = ExercisePlanItemSerializer(data=request.data)
+        if serializer.is_valid():
+            item = serializer.save(exercise_plan=plan)
+            return Response(
+                ExercisePlanItemSerializer(item).data, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    @action(detail=False, methods=['get'])
-    def today(self, request):
-        """Get today's exercise plan items"""
-        today = timezone.now().weekday()  # 0=Monday, 6=Sunday
-        day_mapping = {
-            0: 'monday', 1: 'tuesday', 2: 'wednesday', 3: 'thursday',
-            4: 'friday', 5: 'saturday', 6: 'sunday'
-        }
+    def delete(self, request, plan_id, item_id):
+        # Get the exercise plan
+        plan = get_object_or_404(ExercisePlan, pk=plan_id)
         
-        queryset = self.get_queryset().filter(
-            day_of_week=day_mapping.get(today),
-            exercise_plan__status='active'
-        )
-        
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        # Only the physiotherapist who created the plan can delete items
+        if request.user != plan.physiotherapist:
+            return Response(
+                {'error': 'You do not have permission to delete items from this plan'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        item = get_object_or_404(ExercisePlanItem, pk=item_id, exercise_plan=plan)
+        item.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
-class ExerciseProgressViewSet(viewsets.ModelViewSet):
-    """
-    ViewSet for managing exercise progress
-    """
+class ExerciseProgressListCreateView(APIView):
     permission_classes = [IsAuthenticated]
     
-    def get_serializer_class(self):
-        if self.action == 'create':
-            return ExerciseProgressCreateSerializer
-        return ExerciseProgressSerializer
-    
-    def get_queryset(self):
-        user = self.request.user
-        queryset = ExerciseProgress.objects.select_related(
-            'patient', 'exercise_plan_item__exercise', 'exercise_plan_item__exercise_plan'
-        )
+    def get(self, request):
+        user = request.user
         
         if user.user_type == 'patient':
-            queryset = queryset.filter(patient=user)
+            progress = ExerciseProgress.objects.filter(patient=user)
         elif user.user_type == 'physiotherapist':
-            queryset = queryset.filter(exercise_plan_item__exercise_plan__physiotherapist=user)
-        
-        # Filter by date range
-        start_date = self.request.query_params.get('start_date')
-        end_date = self.request.query_params.get('end_date')
-        if start_date:
-            queryset = queryset.filter(date_completed__gte=start_date)
-        if end_date:
-            queryset = queryset.filter(date_completed__lte=end_date)
-        
-        # Filter by exercise plan
-        plan_id = self.request.query_params.get('plan')
-        if plan_id:
-            queryset = queryset.filter(exercise_plan_item__exercise_plan_id=plan_id)
-        
-        return queryset.order_by('-date_completed')
-    
-    def perform_create(self, serializer):
-        if self.request.user.user_type == 'patient':
-            serializer.save(patient=self.request.user)
+            # Physiotherapists can see progress for their patients' exercise plans
+            progress = ExerciseProgress.objects.filter(
+                exercise_plan_item__exercise_plan__physiotherapist=user
+            )
         else:
-            serializer.save()
-    
-    @action(detail=False, methods=['get'])
-    def statistics(self, request):
-        """Get exercise progress statistics"""
-        queryset = self.get_queryset()
-        
-        # Basic stats
-        total_sessions = queryset.count()
-        completed_sessions = queryset.filter(completion_status='completed').count()
-        
-        # Average ratings
-        avg_difficulty = queryset.aggregate(Avg('difficulty_rating'))['difficulty_rating__avg'] or 0
-        avg_pain_before = queryset.aggregate(Avg('pain_level_before'))['pain_level_before__avg'] or 0
-        avg_pain_after = queryset.aggregate(Avg('pain_level_after'))['pain_level_after__avg'] or 0
-        
-        # Weekly progress
-        week_start = timezone.now().date() - timedelta(days=timezone.now().weekday())
-        week_end = week_start + timedelta(days=6)
-        weekly_sessions = queryset.filter(
-            date_completed__range=[week_start, week_end]
-        ).count()
-        
-        # Monthly progress
-        month_start = timezone.now().date().replace(day=1)
-        monthly_sessions = queryset.filter(
-            date_completed__gte=month_start
-        ).count()
-        
-        return Response({
-            'total_sessions': total_sessions,
-            'completed_sessions': completed_sessions,
-            'completion_rate': (completed_sessions / total_sessions * 100) if total_sessions > 0 else 0,
-            'average_difficulty_rating': round(avg_difficulty, 2),
-            'average_pain_before': round(avg_pain_before, 2),
-            'average_pain_after': round(avg_pain_after, 2),
-            'pain_improvement': round(avg_pain_before - avg_pain_after, 2),
-            'weekly_sessions': weekly_sessions,
-            'monthly_sessions': monthly_sessions
-        })
-    
-    @action(detail=False, methods=['get'])
-    def recent(self, request):
-        """Get recent exercise progress"""
-        queryset = self.get_queryset()[:10]
-        serializer = self.get_serializer(queryset, many=True)
+            progress = ExerciseProgress.objects.all()
+            
+        serializer = ExerciseProgressSerializer(progress, many=True)
         return Response(serializer.data)
+    
+    def post(self, request):
+        # Only patients can record exercise progress
+        if request.user.user_type != 'patient':
+            return Response(
+                {'error': 'Only patients can record exercise progress'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+            
+        serializer = ExerciseProgressCreateSerializer(
+            data=request.data, 
+            context={'request': request}
+        )
+        
+        if serializer.is_valid():
+            progress = serializer.save()
+            return Response(
+                ExerciseProgressSerializer(progress).data, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
